@@ -21,9 +21,9 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-09-01
-lastReviewedCommit: a349c4ad3068dc76a7b43417fa5ead2ee6e0e6d3
-lastReviewedNote: 'Reviewed for Issue #72: remote HTTP accepts direct Supabase OAuth access JWTs and keeps all server-side authorization state and compatibility modes removed.'
+lastReviewedAt: 2026-09-13
+lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
+lastReviewedNote: 'Reviewed for #76 / workspace #1107: canonical repository identity, the exact release guard, and active source links move to tiangong-lca/mcp; package name, bin names, version 0.2.0, the Docker Hub registry namespace, historical tags and signed artifacts are unchanged; the release-context decision now lives in scripts/ci/release-context.sh and is regression-tested against real git fixtures.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -33,7 +33,7 @@ related:
 
 # TianGong-LCA-MCP
 
-[中文](https://github.com/linancn/tiangong-lca-mcp/blob/main/README_CN.md) | [English](https://github.com/linancn/tiangong-lca-mcp/blob/main/README.md)
+[中文](https://github.com/tiangong-lca/mcp/blob/main/README_CN.md) | [English](https://github.com/tiangong-lca/mcp/blob/main/README.md)
 
 TianGong LCA Model Context Protocol (MCP) Server supports STDIO and Streamable Http protocols.
 

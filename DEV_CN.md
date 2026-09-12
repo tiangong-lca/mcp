@@ -21,9 +21,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-09-06
-lastReviewedCommit: 0f3e788fbe6dab4f759b8de4ac1355b6abe436bc
-lastReviewedNote: 'Reviewed for #74 / workspace #980 W11: retire the owned Intel Oxlint age exception and invoke the existing high-severity audit script explicitly. Frozen dependencies, supported-platform entries, runtime/auth contracts and release behavior are unchanged.'
+lastReviewedAt: 2026-09-13
+lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
+lastReviewedNote: '针对 Issue #76 / workspace #1107 完成复核：canonical 仓库身份、精确发布门与活跃源码链接迁移至 tiangong-lca/mcp；包名、bin 名、版本 0.2.0、Docker Hub 命名空间、历史 tag 与签名产物不变；发布上下文判定已收敛至 scripts/ci/release-context.sh 并以真实 git fixture 回归覆盖。'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -34,7 +34,7 @@ related:
 
 # TianGong-LCA-MCP
 
-[中文](https://github.com/linancn/tiangong-lca-mcp/blob/main/DEV_CN.md) | [English](https://github.com/linancn/tiangong-lca-mcp/blob/main/DEV_EN.md)
+[中文](https://github.com/tiangong-lca/mcp/blob/main/DEV_CN.md) | [English](https://github.com/tiangong-lca/mcp/blob/main/DEV_EN.md)
 
 TianGong LCA Model Context Protocol (MCP) Server 支持 STDIO 和 StreamableHttp 两种协议。
 
