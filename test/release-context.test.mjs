@@ -48,6 +48,8 @@ function createFixture({ baseVersion, headVersion }) {
   git(fixtureRoot, 'init', '-b', 'main', work);
   git(work, 'config', 'user.email', 'release-context@example.invalid');
   git(work, 'config', 'user.name', 'release-context test');
+  git(work, 'config', 'commit.gpgsign', 'false');
+  git(work, 'config', 'tag.gpgsign', 'false');
   git(work, 'remote', 'add', 'origin', origin);
 
   const packageJson = (version) =>
@@ -68,7 +70,13 @@ function createFixture({ baseVersion, headVersion }) {
 
 function runReleaseContext(
   fixture,
-  { repository, ref = 'refs/heads/main', refName = 'main' } = {},
+  {
+    repository,
+    ref = 'refs/heads/main',
+    refName = 'main',
+    eventName = 'push',
+    requestedTag = '',
+  } = {},
 ) {
   const outputPath = join(fixtureRoot, `output-${Math.random().toString(16).slice(2)}`);
   const summaryPath = join(fixtureRoot, `summary-${Math.random().toString(16).slice(2)}`);
@@ -78,42 +86,28 @@ function runReleaseContext(
     env: {
       ...process.env,
       GITHUB_REPOSITORY: repository,
-      GITHUB_EVENT_NAME: 'push',
+      GITHUB_EVENT_NAME: eventName,
       GITHUB_REF: ref,
       GITHUB_REF_NAME: refName,
       GITHUB_SHA: fixture.headSha,
       PUSH_BEFORE_SHA: fixture.beforeSha,
-      REQUESTED_TAG_NAME: '',
+      REQUESTED_TAG_NAME: requestedTag,
       GITHUB_OUTPUT: outputPath,
       GITHUB_STEP_SUMMARY: summaryPath,
     },
   });
   const outputs = {};
-  // spawnSync can return while the child's final GITHUB_OUTPUT writes are still landing
-  // (observed on darwin); the output writes are the script's last statements, so polling
-  // for a non-empty file is equivalent to waiting for the guard to finish.
-  for (let waitedMs = 0; waitedMs <= 2000; waitedMs += 25) {
-    const content = readIfExists(outputPath);
-    if (content.length > 0) {
-      for (const line of content.split('\n')) {
-        const match = /^([^=]+)=(.*)$/u.exec(line);
-        if (match) outputs[match[1]] = match[2];
-      }
-      break;
+  if (result.status === 0) {
+    const content = readFileSync(outputPath, 'utf8');
+    assert.notEqual(content.trim(), '', 'A successful release guard must write its decision.');
+    for (const line of content.split('\n')) {
+      const match = /^([^=]+)=(.*)$/u.exec(line);
+      if (match) outputs[match[1]] = match[2];
     }
-    if (result.status !== 0) break;
-    spawnSync('sleep', ['0.025']);
   }
   return { result, outputs };
 }
 
-function readIfExists(path) {
-  try {
-    return readFileSync(path, 'utf8');
-  } catch {
-    return '';
-  }
-}
 describe(
   'release-context canonical guard (executed against real git fixtures)',
   { skip: !bashAvailable && 'bash is unavailable on this platform' },
@@ -136,6 +130,67 @@ describe(
       assert.equal(outputs.should_release, 'false');
       assert.equal(outputs.tag_created, 'false');
       assert.equal(revExists(fixture.origin, 'refs/tags/v0.2.0'), false);
+    });
+
+    it('does not republish an existing version after a metadata-only main commit', () => {
+      const fixture = createFixture({ baseVersion: '0.2.0', headVersion: '0.2.0' });
+      git(fixture.work, 'tag', 'v0.2.0', fixture.headSha);
+      git(fixture.work, 'push', 'origin', 'refs/tags/v0.2.0');
+      writeFileSync(join(fixture.work, 'metadata.txt'), 'canonical repository update');
+      git(fixture.work, 'add', 'metadata.txt');
+      git(fixture.work, 'commit', '-m', 'metadata only');
+      fixture.beforeSha = fixture.headSha;
+      fixture.headSha = git(fixture.work, 'rev-parse', 'HEAD');
+      git(fixture.work, 'push', 'origin', 'main');
+      const { result, outputs } = runReleaseContext(fixture, { repository: CANONICAL });
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(outputs.should_release, 'false');
+      assert.equal(outputs.tag_created, 'false');
+      assert.equal(git(fixture.origin, 'rev-parse', 'refs/tags/v0.2.0'), fixture.beforeSha);
+    });
+
+    it('refuses to publish a matching release tag outside main ancestry', () => {
+      const fixture = createFixture({ baseVersion: '0.2.0', headVersion: '0.2.1' });
+      git(fixture.work, 'checkout', '-b', 'off-main');
+      writeFileSync(join(fixture.work, 'off-main.txt'), 'not promoted');
+      git(fixture.work, 'add', 'off-main.txt');
+      git(fixture.work, 'commit', '-m', 'off main');
+      git(fixture.work, 'tag', 'v0.2.1');
+      git(fixture.work, 'push', 'origin', 'refs/tags/v0.2.1');
+      const { result, outputs } = runReleaseContext(fixture, {
+        repository: CANONICAL,
+        ref: 'refs/tags/v0.2.1',
+        refName: 'v0.2.1',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(outputs.should_release, 'false');
+    });
+
+    it('uses the current decision script for an existing-tag manual recovery', () => {
+      const fixture = createFixture({ baseVersion: '0.2.0', headVersion: '0.2.1' });
+      git(fixture.work, 'tag', 'v0.2.1', fixture.headSha);
+      git(fixture.work, 'push', 'origin', 'refs/tags/v0.2.1');
+      const { result, outputs } = runReleaseContext(fixture, {
+        repository: CANONICAL,
+        eventName: 'workflow_dispatch',
+        requestedTag: 'v0.2.1',
+      });
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(outputs.should_release, 'true');
+      assert.equal(outputs.tag_created, 'false');
+    });
+
+    it('rejects a manual tag that does not match its package version', () => {
+      const fixture = createFixture({ baseVersion: '0.2.0', headVersion: '0.2.1' });
+      git(fixture.work, 'tag', 'v9.9.9', fixture.headSha);
+      git(fixture.work, 'push', 'origin', 'refs/tags/v9.9.9');
+      const { result } = runReleaseContext(fixture, {
+        repository: CANONICAL,
+        eventName: 'workflow_dispatch',
+        requestedTag: 'v9.9.9',
+      });
+      assert.notEqual(result.status, 0);
+      assert.match(result.stdout, /does not match package.json version/);
     });
 
     it('rejects the previous owner repository linancn/tiangong-lca-mcp', () => {

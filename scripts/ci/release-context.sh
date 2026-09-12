@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Release-context decision shared by .github/workflows/publish.yml ("Resolve release target").
 # Inputs come from the workflow environment; outputs go to GITHUB_OUTPUT. Kept as a
-# standalone script so tests/release-context.test.mjs executes the exact guard logic.
+# standalone script so test/release-context.test.mjs executes the exact guard logic.
 set -euo pipefail
 
 # The workflow always provides GITHUB_STEP_SUMMARY; default it so the script can also
