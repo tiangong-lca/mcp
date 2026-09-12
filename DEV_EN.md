@@ -22,9 +22,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-09-06
-lastReviewedCommit: 0f3e788fbe6dab4f759b8de4ac1355b6abe436bc
-lastReviewedNote: 'Reviewed for #74 / workspace #980 W11: retire the owned Intel Oxlint age exception and invoke the existing high-severity audit script explicitly. Frozen dependencies, supported-platform entries, runtime/auth contracts and release behavior are unchanged.'
+lastReviewedAt: 2026-09-13
+lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
+lastReviewedNote: 'Reviewed for #76 / workspace #1107: canonical repository identity, the exact release guard, and active source links move to tiangong-lca/mcp; package name, bin names, version 0.2.0, the Docker Hub registry namespace, historical tags and signed artifacts are unchanged; the release-context decision now lives in scripts/ci/release-context.sh and is regression-tested against real git fixtures.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -35,7 +35,7 @@ related:
 
 # TianGong-AI-MCP
 
-[中文](https://github.com/linancn/tiangong-lca-mcp/blob/main/DEV_CN.md) | [English](https://github.com/linancn/tiangong-lca-mcp/blob/main/DEV_EN.md)
+[中文](https://github.com/tiangong-lca/mcp/blob/main/DEV_CN.md) | [English](https://github.com/tiangong-lca/mcp/blob/main/DEV_EN.md)
 
 TianGong AI Model Context Protocol (MCP) Server supports STDIO and StreamableHttp protocols.
 

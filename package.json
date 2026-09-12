@@ -6,7 +6,7 @@
   "author": "Nan LI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/linancn/tiangong-lca-mcp"
+    "url": "https://github.com/tiangong-lca/mcp"
   },
   "packageManager": "pnpm@11.24.0",
   "type": "module",
