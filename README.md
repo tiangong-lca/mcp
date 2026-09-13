@@ -72,7 +72,7 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 ### Using Docker
 
 ```bash
-# Build MCP server image using Dockerfile (optional)
+# Build the MCP server image locally using Dockerfile
 docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
 
 # Start MCP server using Docker
