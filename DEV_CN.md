@@ -21,9 +21,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-09-13
-lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
-lastReviewedNote: '针对 Issue #76 / workspace #1107 完成复核：canonical 仓库身份、精确发布门与活跃源码链接迁移至 tiangong-lca/mcp；包名、bin 名、版本 0.2.0、Docker Hub 命名空间、历史 tag 与签名产物不变；发布上下文判定已收敛至 scripts/ci/release-context.sh 并以真实 git fixture 回归覆盖。'
+lastReviewedAt: 2026-09-14
+lastReviewedCommit: b7a27cda880e0638589e8264c4cef6bbc22d552d
+lastReviewedNote: '针对 MCP #78 / 0.2.1 发布完成复核：经 helper 确认的精确版本投影将 0.2.0 推进到 0.2.1，覆盖 package.json、Dockerfile 全局安装 pin、两处活跃 consumer/toolchain 绑定与四份活跃 Docker 运行示例；因 Docker Hub 无已验证的公开预构建 tag，示例改为仅本地构建。SDK 保持精确 0.2.0；lock 字节、依赖、Node 24.19.0、pnpm 11.24.0、TypeScript 7.0.2、runtime/auth 行为、workflow 逻辑与全部历史发布 fixture 不变。'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -53,17 +53,14 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 
 ```bash
 # 使用 Dockerfile 构建 MCP 服务器镜像（可选）
-docker build -t linancn/tiangong-lca-mcp-server:0.2.0 .
-
-# 拉取 MCP 服务器镜像
-docker pull linancn/tiangong-lca-mcp-server:0.2.0
+docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
 
 # 使用 Docker 启动 MCP 服务器
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.0
+    linancn/tiangong-lca-mcp-server:0.2.1
 ```
 
 ## 开发
@@ -131,7 +128,7 @@ pnpm prepush:gate
 
 ### 发布
 
-本次 direct-OAuth 任务在变更合并后执行发布。Trusted publishing workflow 使用 pnpm frozen lock 安装并运行标准门禁；Tag 继续使用本单包仓库的 `v<package.version>` 格式，本次 `0.2.0` 对应 `v0.2.0`。构建 ECS 镜像前必须读回 registry integrity，并确认发布包包含 OAuth runtime、Supabase JWT verifier 与 HTTP app，且所有已删除的 stateful-auth 模块不存在。同一门禁还必须真实执行全局 HTTP bin 并收到 `/health`；仅 import 证明不足。
+本次 direct-OAuth 任务在变更合并后执行发布。Trusted publishing workflow 使用 pnpm frozen lock 安装并运行标准门禁；Tag 继续使用本单包仓库的 `v<package.version>` 格式，本次 `0.2.1` 对应 `v0.2.1`。构建 ECS 镜像前必须读回 registry integrity，并确认发布包包含 OAuth runtime、Supabase JWT verifier 与 HTTP app，且所有已删除的 stateful-auth 模块不存在。同一门禁还必须真实执行全局 HTTP bin 并收到 `/health`；仅 import 证明不足。
 
 ### 测试脚手架
 
@@ -144,7 +141,7 @@ pnpm exec tsx scripts/openlca-ipc-smoke.ts
 ```bash
 set -euo pipefail
 
-image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.2.0"
+image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.2.1"
 image_uri="339712838008.dkr.ecr.us-east-1.amazonaws.com/tiangong-lca-mcp"
 
 docker build --no-cache --provenance=false --platform linux/arm64 -t "${image_uri}:${image_tag}" .
