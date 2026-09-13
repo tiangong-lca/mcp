@@ -21,9 +21,9 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-09-13
-lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
-lastReviewedNote: '针对 Issue #76 / workspace #1107 完成复核：canonical 仓库身份、精确发布门与活跃源码链接迁移至 tiangong-lca/mcp；包名、bin 名、版本 0.2.0、Docker Hub 命名空间、历史 tag 与签名产物不变；发布上下文判定已收敛至 scripts/ci/release-context.sh 并以真实 git fixture 回归覆盖。'
+lastReviewedAt: 2026-09-14
+lastReviewedCommit: b7a27cda880e0638589e8264c4cef6bbc22d552d
+lastReviewedNote: '针对 MCP #78 / 0.2.1 发布完成复核：经 helper 确认的精确版本投影将 0.2.0 推进到 0.2.1，覆盖 package.json、Dockerfile 全局安装 pin、两处活跃 consumer/toolchain 绑定与四份活跃 Docker 运行示例；因 Docker Hub 无已验证的公开预构建 tag，示例改为仅本地构建。SDK 保持精确 0.2.0；lock 字节、依赖、Node 24.19.0、pnpm 11.24.0、TypeScript 7.0.2、runtime/auth 行为、workflow 逻辑与全部历史发布 fixture 不变。'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -72,18 +72,15 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 ### 使用 Docker
 
 ```bash
-# 使用 Dockerfile 构建 MCP 服务器镜像（可选）
-docker build -t linancn/tiangong-lca-mcp-server:0.2.0 .
-
-# 拉取 MCP 服务器镜像
-docker pull linancn/tiangong-lca-mcp-server:0.2.0
+# 使用 Dockerfile 在本地构建 MCP 服务器镜像
+docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
 
 # 使用 Docker 启动 MCP 服务器
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.0
+    linancn/tiangong-lca-mcp-server:0.2.1
 ```
 
 ### 本地测试

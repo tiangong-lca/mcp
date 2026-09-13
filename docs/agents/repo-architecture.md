@@ -33,9 +33,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-09-13
-lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
-lastReviewedNote: 'Reviewed for #76 / workspace #1107: canonical repository identity, the exact release guard, and active source links move to tiangong-lca/mcp; package name, bin names, version 0.2.0, the Docker Hub registry namespace, historical tags and signed artifacts are unchanged; the release-context decision now lives in scripts/ci/release-context.sh and is regression-tested against real git fixtures.'
+lastReviewedAt: 2026-09-14
+lastReviewedCommit: b7a27cda880e0638589e8264c4cef6bbc22d552d
+lastReviewedNote: 'Reviewed for MCP #78 / release 0.2.1: exact helper-confirmed version projection advances 0.2.0 to 0.2.1 across package.json, the Dockerfile global pin, both live consumer/toolchain bindings and the four active Docker run examples, which now describe a local build only because no public Docker Hub prebuilt tag is verified. SDK stays exact 0.2.0; lock bytes, dependencies, Node 24.19.0, pnpm 11.24.0, TypeScript 7.0.2, runtime/auth behavior, workflow logic and every historical release fixture remain unchanged.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
@@ -128,7 +128,7 @@ On Node Alpine, Corepack activation and pnpm global installation are separate bo
 
 The build upgrades Alpine packages before package-manager setup and records the installed OpenSSL version. The ECR qualification command disables provenance so the tag resolves to one scan-compatible ARM64 image manifest instead of an OCI index. The tag is commit-bearing and must be absent before push. Qualification reuses scan-on-push, starts only for `ScanNotFoundException`, preserves every other probe error, and exits before run unless the result is COMPLETE with exactly zero CRITICAL and HIGH findings. A vulnerable or unscannable image remains evidence only and is never an ECS task input.
 
-The MCP `0.2.0` package graph is single-track Node `24.19.0`, pnpm `11.24.0`, TypeScript `7.0.2`, TIDAS SDK `0.2.0`, Supabase JS `2.112.4`, MCP SDK `1.30.0`, and Zod `4.5.4`. Inspector `2.4.0`, React DOM `19.2.8`, and tsx `4.23.13` are development-only; React DOM supplies Inspector's React 19 peer without entering the production archive. The packed-consumer proof imports all three packaged entry modules from an arbitrary path, verifies that compiler, lint, test, and Inspector/React tooling is absent from the production install, and proves that canonical realpath comparison still treats the generated global shim target as the executable entrypoint.
+The MCP `0.2.1` package graph is single-track Node `24.19.0`, pnpm `11.24.0`, TypeScript `7.0.2`, TIDAS SDK `0.2.0`, Supabase JS `2.112.4`, MCP SDK `1.30.0`, and Zod `4.5.4`. Inspector `2.4.0`, React DOM `19.2.8`, and tsx `4.23.13` are development-only; React DOM supplies Inspector's React 19 peer without entering the production archive. The packed-consumer proof imports all three packaged entry modules from an arbitrary path, verifies that compiler, lint, test, and Inspector/React tooling is absent from the production install, and proves that canonical realpath comparison still treats the generated global shim target as the executable entrypoint.
 
 Nested consumer and clean-worktree commands cannot assume Corepack environment variables: they scan `PATH` for the official native `pnpm` or `pnpm.exe`, verify exact version `11.24.0`, and execute with argv plus `shell: false`. A verified `COREPACK_ROOT/dist/pnpm.js` invocation remains a fallback for local Corepack shells.
 

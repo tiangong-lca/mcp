@@ -21,9 +21,9 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-09-13
-lastReviewedCommit: 26688e8c155f0bb78c6df6cf92cab4b80478e6f0
-lastReviewedNote: 'Reviewed for #76 / workspace #1107: canonical repository identity, the exact release guard, and active source links move to tiangong-lca/mcp; package name, bin names, version 0.2.0, the Docker Hub registry namespace, historical tags and signed artifacts are unchanged; the release-context decision now lives in scripts/ci/release-context.sh and is regression-tested against real git fixtures.'
+lastReviewedAt: 2026-09-14
+lastReviewedCommit: b7a27cda880e0638589e8264c4cef6bbc22d552d
+lastReviewedNote: 'Reviewed for MCP #78 / release 0.2.1: exact helper-confirmed version projection advances 0.2.0 to 0.2.1 across package.json, the Dockerfile global pin, both live consumer/toolchain bindings and the four active Docker run examples, which now describe a local build only because no public Docker Hub prebuilt tag is verified. SDK stays exact 0.2.0; lock bytes, dependencies, Node 24.19.0, pnpm 11.24.0, TypeScript 7.0.2, runtime/auth behavior, workflow logic and every historical release fixture remain unchanged.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -72,18 +72,15 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 ### Using Docker
 
 ```bash
-# Build MCP server image using Dockerfile (optional)
-docker build -t linancn/tiangong-lca-mcp-server:0.2.0 .
-
-# Pull MCP server image
-docker pull linancn/tiangong-lca-mcp-server:0.2.0
+# Build the MCP server image locally using Dockerfile
+docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
 
 # Start MCP server using Docker
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.0
+    linancn/tiangong-lca-mcp-server:0.2.1
 ```
 
 ## Local Testing
