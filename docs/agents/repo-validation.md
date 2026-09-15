@@ -38,9 +38,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-09-14
-lastReviewedCommit: b7a27cda880e0638589e8264c4cef6bbc22d552d
-lastReviewedNote: 'Reviewed for MCP #78 / release 0.2.1: exact helper-confirmed version projection advances 0.2.0 to 0.2.1 across package.json, the Dockerfile global pin, both live consumer/toolchain bindings and the four active Docker run examples, which now describe a local build only because no public Docker Hub prebuilt tag is verified. SDK stays exact 0.2.0; lock bytes, dependencies, Node 24.19.0, pnpm 11.24.0, TypeScript 7.0.2, runtime/auth behavior, workflow logic and every historical release fixture remain unchanged.'
+lastReviewedAt: 2026-09-15
+lastReviewedCommit: 7a6c4797472fe3cebea24db7f79ec834d00bf663
+lastReviewedNote: 'Reviewed for MCP #80: clean-worktree verification explicitly reuses only the exact source pnpm store after target-context roundtrip validation. Fresh tracked-only temporary inputs, independent node_modules, frozen lock, arbitrary/cross-volume paths, all gate stages and cleanup are preserved. Primary independent source review and focused real-entrypoint tests pass; complete local canonical gate passed. No package/runtime/lock/release or cloud change. Four-platform CI and measured Windows benefit remain pending.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
@@ -67,6 +67,8 @@ The gate is intentionally non-mutating and includes:
 - packed runtime-consumer validation in a path containing spaces, including a real global-bin `/health` probe through the package-manager shim
 - build, exact toolchain assertion, the declared high-severity `pnpm run audit` script, and dry-run pack
 - a frozen install plus lint/test/build/toolchain/pack rerun in a clean arbitrary-path worktree
+
+The clean-worktree check resolves the source checkout's store with the verified pnpm executable, then checks that the same explicit `--store-dir` resolves to that exact store in the temporary worktree before installation. It passes the store option only to the fresh `--frozen-lockfile` install; copied inputs, independent `node_modules`, arbitrary paths with spaces, Windows cross-volume placement and all later gates/cleanup remain unchanged. No installed runtime or gate result is reused and no global pnpm configuration is changed. Missing, malformed or inconsistent store discovery fails before installation. pnpm copies packages instead of hardlinking when the explicit store is on another filesystem; compare actual download/import overhead on the same workload rather than assuming a net speedup from fewer downloads.
 
 ## Validation Matrix
 
