@@ -68,6 +68,8 @@ The gate is intentionally non-mutating and includes:
 - build, exact toolchain assertion, the declared high-severity `pnpm run audit` script, and dry-run pack
 - a frozen install plus lint/test/build/toolchain/pack rerun in a clean arbitrary-path worktree
 
+The clean-worktree check resolves the source checkout's store with the verified pnpm executable, then checks that the same explicit `--store-dir` resolves to that exact store in the temporary worktree before installation. It passes the store option only to the fresh `--frozen-lockfile` install; copied inputs, independent `node_modules`, arbitrary paths with spaces, Windows cross-volume placement and all later gates/cleanup remain unchanged. No installed runtime or gate result is reused and no global pnpm configuration is changed. Missing, malformed or inconsistent store discovery fails before installation. pnpm copies packages instead of hardlinking when the explicit store is on another filesystem; compare actual download/import overhead on the same workload rather than assuming a net speedup from fewer downloads.
+
 ## Validation Matrix
 
 | Change type | Minimum local proof | Additional proof when risk is higher | Notes |
