@@ -33,9 +33,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-09-15
-lastReviewedCommit: 7a6c4797472fe3cebea24db7f79ec834d00bf663
-lastReviewedNote: 'Reviewed for MCP #80: clean-worktree verification explicitly reuses only the exact source pnpm store after target-context roundtrip validation. Fresh tracked-only temporary inputs, independent node_modules, frozen lock, arbitrary/cross-volume paths, all gate stages and cleanup are preserved. Primary independent source review and focused real-entrypoint tests pass; complete local canonical gate passed. No package/runtime/lock/release or cloud change. Four-platform CI and measured Windows benefit remain pending.'
+lastReviewedAt: 2026-09-23
+lastReviewedCommit: c1b238844245aa5a61ef05be7c1ecfcfb750955e
+lastReviewedNote: 'Current MCP package architecture and tool ownership are reviewed.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
