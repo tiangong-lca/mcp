@@ -63,9 +63,9 @@
     "@types/node": "24.13.3",
     "oxlint": "1.80.0",
     "oxlint-tsgolint": "7.0.2001",
-    "prettier": "3.9.6",
+    "prettier": "3.9.10",
     "react-dom": "19.3.1",
-    "tsx": "4.23.13",
+    "tsx": "4.23.15",
     "typescript": "7.0.2"
   }
 }
