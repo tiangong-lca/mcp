@@ -33,9 +33,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: de36e7aa730c3cfb086a8faffe2a09383fb4dd39
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
@@ -148,3 +148,7 @@ Nested consumer and clean-worktree commands cannot assume Corepack environment v
 ## Local Docpact Push Gate
 
 This repository has a versioned local `pre-push` hook under `.githooks/pre-push` that delegates to `scripts/docpact-gate.sh`. The gate resolves the CLI through `scripts/docpact`, so local agent shells do not need bare `docpact` on `PATH`. The hook is a local developer guard for docpact config validation and enforced doc-governance linting; ordinary PRs and pushes rely on the local gate; `.github/workflows/ai-doc-lint.yml` is manual-dispatch fallback for remote reproduction.
+
+## Study workflow adapter
+
+`src/tools/study.ts` exposes the public Study workflow with explicit V2–V5 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 256 KiB requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.

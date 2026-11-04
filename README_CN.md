@@ -21,9 +21,9 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: de36e7aa730c3cfb086a8faffe2a09383fb4dd39
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -109,3 +109,7 @@ pnpm start:server-local
 ```
 
 HTTP 启动命令通过跨平台 Node argv wrapper 启动 MCP Inspector，并在 wrapper 内注入仅用于开发的 Inspector 环境，不依赖 POSIX shell 语法。
+
+## LCA Study 工作流
+
+当前源码在认证 HTTP 中提供 `Study_API_Tool`，显式选择公开的 V2–V5 请求，覆盖模型与运行、分析、报告、审阅和指定接收者分享。服务转发已准入的 OAuth 身份，每次调用均重新授权。请保存原始变更请求及幂等键，以便显式恢复不明确的结果；工具不输出原始来源包。下载完整性、资格边界和当前限制见 [Study 消费契约](docs/agents/study-api-contract.md)。已有发布包需要经过单独审核发布后才会包含这些源码变更。

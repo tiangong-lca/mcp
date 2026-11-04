@@ -12,3 +12,5 @@ LICENSE
 .eslintcache
 *.lock
 dist
+# Exact Edge-owned portable assets; integrity-checked, never reformatted.
+src/_shared/study_contract/v*/

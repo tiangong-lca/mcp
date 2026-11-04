@@ -22,9 +22,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: de36e7aa730c3cfb086a8faffe2a09383fb4dd39
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -191,3 +191,7 @@ docker run -d -p 9278:9278 --env-file .env "${image_uri}:${image_tag}"
 The checked-in Dockerfile enables the pnpm Corepack shim before activating exact pnpm `11.24.0`, and retains `/pnpm/bin` in the final OCI `PATH`. Before ECR push, run a no-cache `linux/arm64` build and verify the image architecture plus the default `tiangong-lca-mcp-http` executable; regex-only Dockerfile proof is insufficient.
 
 That build first runs `apk upgrade --no-cache`. Read back the installed OpenSSL packages and use a previously absent commit-bearing ECR tag. Keep `--provenance=false`: Amazon ECR basic scanning rejects an OCI index, so the pushed artifact must resolve to a single image manifest. Reuse an existing scan-on-push result and start a scan only for an explicit `ScanNotFoundException`; every other probe failure remains fatal. Wait for scan status COMPLETE with zero CRITICAL/HIGH findings before running it or registering an ECS task revision.
+
+## Study API adapter
+
+See [the Study contract](docs/agents/study-api-contract.md). On authenticated HTTP, call `Study_API_Tool` with an exact public `request` carrying an explicit `lca.study-api.v2` through `.v5` schema. Keep the original mutation request/key; ambiguous results return a transport digest for explicit identical-request recovery. Download selection requires the exact bundle hash/size from a prior authorized read. Raw source packet bytes are unsupported. STDIO registration adds no token source, so the shipped tokenless executable rejects Study calls before network access. No deployment, package publication or P5 activation follows from source delivery.

@@ -1,5 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["src/_shared/study_contract/v*/**"],
   "overrides": [
     {
       "files": ["test/**/*.ts"],

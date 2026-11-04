@@ -47,6 +47,7 @@ describe('MCP registration contract', () => {
       'Search_GLAD_Datasets_Tool',
       'Search_Life_Cycle_Models_Tool',
       'Search_Processes_Tool',
+      'Study_API_Tool',
     ]);
   });
 
@@ -58,6 +59,7 @@ describe('MCP registration contract', () => {
       'Search_GLAD_Datasets_Tool',
       'Search_Life_Cycle_Models_Tool',
       'Search_Processes_Tool',
+      'Study_API_Tool',
     ]);
   });
 

@@ -14,6 +14,7 @@ import {
 } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { delimiter, dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -207,6 +208,8 @@ try {
     'dist/src/_shared/oauth_runtime.js',
     'dist/src/_shared/supabase_jwt_verifier.js',
     'dist/src/http_app.js',
+    'dist/src/tools/study.js',
+    'dist/src/_shared/study_codec.js',
   ]) {
     assert.equal(existsSync(join(packageRoot, runtimeFile)), true, runtimeFile);
   }
@@ -236,6 +239,61 @@ try {
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server_local.js')).href);
+  const { loadStudyCodec } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', '_shared', 'study_codec.js')).href
+  );
+  const { callStudy } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
+  );
+  for (const version of ['v2', 'v3', 'v4', 'v5']) {
+    const schemaVersion = `lca.study-api.${version}`;
+    const codec = await loadStudyCodec(schemaVersion);
+    const request = { schemaVersion, requestId: 'packed-request', operation: 'capability.read' };
+    assert.equal(codec.parseRequest(request).schemaVersion, schemaVersion);
+    assert.equal(codec.operationMetadata['capability.read'].kind, 'query');
+    const denied = await callStudy({ request }, undefined, new AbortController().signal);
+    assert.equal(denied.code, 'STUDY_AUTH_REQUIRED');
+  }
+  // Exercise the installed runtime through the actual SDK protocol, without a sibling import.
+  const packageRequire = createRequire(join(packageRoot, 'package.json'));
+  const { Client } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/client/index.js')).href
+  );
+  const { InMemoryTransport } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/inMemory.js')).href
+  );
+  const { McpServer } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/server/mcp.js')).href
+  );
+  const { regStudyTool } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
+  );
+  const packedServer = new McpServer({ name: 'packed-study', version: '1' });
+  regStudyTool(packedServer);
+  const packedClient = new Client({ name: 'installed-study-client', version: '1' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  try {
+    await Promise.all([
+      packedServer.connect(serverTransport),
+      packedClient.connect(clientTransport),
+    ]);
+    assert.equal((await packedClient.listTools()).tools[0].name, 'Study_API_Tool');
+    const denied = await packedClient.callTool({
+      name: 'Study_API_Tool',
+      arguments: {
+        request: {
+          schemaVersion: 'lca.study-api.v5',
+          requestId: 'installed-request',
+          operation: 'capability.read',
+        },
+      },
+    });
+    assert.equal(denied.isError, true);
+    assert.equal(denied.structuredContent.code, 'STUDY_AUTH_REQUIRED');
+  } finally {
+    await packedClient.close();
+    await packedServer.close();
+  }
   await assertPackedHttpBinStarts(globalBinDirectory, globalEnvironment);
 } finally {
   rmSync(temporaryRoot, { force: true, maxRetries: 10, recursive: true, retryDelay: 100 });
