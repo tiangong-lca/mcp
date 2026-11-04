@@ -22,7 +22,7 @@ checkPaths:
   - test/**
   - scripts/**
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: 2540a133bfb8f3d73f3a2f2f7f749493f3472097
+lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
 lastReviewedNote: 'MCP #104: reviewed explicit V2-V5 Study consumer, actor forwarding, exact owner artifacts, bounded downloads and same-key recovery. Installed runtime, hosted CI, Main and root qualification remain separately required.'
 related:
   - AGENTS.md

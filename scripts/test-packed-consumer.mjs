@@ -16,7 +16,7 @@ import {
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { createRequire } from 'node:module';
-import { delimiter, dirname, join } from 'node:path';
+import { delimiter, dirname, join, relative, isAbsolute } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runPnpm } from './lib/run-pnpm.mjs';
@@ -266,13 +266,19 @@ try {
     'request.schema.json',
   );
   const originalSchema = readFileSync(packedSchema);
+  const ownedRelative = relative(realpathSync(temporaryRoot), realpathSync(packedSchema));
+  assert.ok(ownedRelative && !ownedRelative.startsWith('..') && !isAbsolute(ownedRelative));
+  let isolatedSchema = false;
   try {
     // Detect a changed auxiliary schema even after the codec was previously loaded.
-    writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]));
+    // Break this installed file's possible pnpm store hardlink before changing bytes.
+    rmSync(packedSchema);
+    isolatedSchema = true;
+    writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]), { flag: 'wx' });
     await assert.rejects(loadStudyCodec('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
     assert.throws(() => readStudyRequestSchema('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
   } finally {
-    writeFileSync(packedSchema, originalSchema);
+    if (isolatedSchema) writeFileSync(packedSchema, originalSchema);
   }
   await loadStudyCodec('lca.study-api.v2');
   // Exercise the installed runtime through the actual SDK protocol, without a sibling import.

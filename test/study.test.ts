@@ -301,6 +301,34 @@ describe('Study owner protocol adapter', () => {
     assert.equal((await invoke(value, answer(valid, 403))).ok, false);
   });
 
+  it('requires exact archived post-state and CAS generation from the owner V2 archive codec', async () => {
+    const value: Request = {
+      ...request(),
+      operation: 'study.archive',
+      idempotencyKey: 'archive-request',
+      target: { type: 'study', id: 'study-new', expectedRevision: 7 },
+    };
+    const valid = mutationSuccess();
+    valid.data.value.status = 'archived';
+    valid.data.value.revision = 8;
+    await assertOwnerPair(value, valid);
+    assert.equal((await invoke(value, answer(valid))).outcome, 'confirmed');
+    for (const state of [
+      { status: 'active', revision: 8 },
+      { status: 'archived', revision: 7 },
+      { status: 'archived', revision: 9 },
+    ]) {
+      const response = {
+        ...valid,
+        data: { ...valid.data, value: { ...valid.data.value, ...state } },
+      };
+      const rejected = await invoke(value, answer(response));
+      assert.equal(rejected.code, 'STUDY_INVALID_RESPONSE');
+      assert.equal(rejected.outcome, 'unknown');
+      assert.equal('response' in rejected, false);
+    }
+  });
+
   it('returns stable domain denial without provider messages, paths or bearer', async () => {
     const value = mutation();
     await assertOwnerPair(value, denial(value));

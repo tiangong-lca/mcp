@@ -26,7 +26,7 @@ export type StudyCodec = {
 };
 
 const pins: Readonly<Record<string, string>> = Object.freeze({
-  'lca.study-api.v2': 'a02a3895b7d16e0e91b0590801844abe9d09299592ba0e1428d0f1d8169e9bb8',
+  'lca.study-api.v2': '0cfe9a2d3c957a005a6b8045b3f8df0cea9b3e852af7a49f706e3b35a798b0c1',
   'lca.study-api.v3': 'a3ac80bb7f16f474f9ef0d017c69121d3a11050e24fa9d8c16b344bb26a3f40b',
   'lca.study-api.v4': '33fe29178eadb23b968ed0bbb0af0f99fc929cfbdc847d24939ad033e5b9719b',
   'lca.study-api.v5': '3eea620ab4041f1a6fcfab34bd2afd275f8cbd3cbcf56ba6a187076e9bb3cf94',
@@ -49,7 +49,10 @@ function verifiedOwnerFiles(schema: string): Map<string, Buffer> {
     !studyObject(manifest) ||
     manifest.apiSchema !== schema ||
     manifest.sourceRepository !== 'tiangong-lca/edge-functions' ||
-    manifest.sourceCommit !== '5b27e2e1fe05e3ff7c3a89f1aa59e8c84f244aff' ||
+    manifest.sourceCommit !==
+      (schema === 'lca.study-api.v2'
+        ? '439f8112a8f9945479c63ffaa8cfe688e9d20216'
+        : '5b27e2e1fe05e3ff7c3a89f1aa59e8c84f244aff') ||
     manifest.sourceStatus !== 'committed' ||
     !Array.isArray(manifest.files)
   )
