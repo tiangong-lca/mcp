@@ -20,7 +20,7 @@ checkPaths:
   - scripts/build.mjs
   - scripts/test-packed-consumer.mjs
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: 1d6b50a
+lastReviewedCommit: 48de93ff6b49bcabe5c58d07fe8fc5cb66fe5c51
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -46,7 +46,7 @@ The public input envelope lists the schema discriminator and request envelope. T
 
 ## Transport and data integrity
 
-One call sends one POST; no automatic retry or redirect follows. Requests are bounded to 256 KiB of UTF-8 JSON before codec evaluation and transmission. Network execution, body streaming and caller cancellation share a 25-second deadline. Responses are streamed with a 6 MiB encoded JSON bound, accommodating the owner's 4 MiB decoded inline artifact limit. Declared and observed lengths both apply. UTF-8/JSON/media-type/status/schema/resource mismatches fail before disclosure. Error envelopes expose stable codes and retryability, never upstream messages, issues, token-bearing diagnostic text or stacks.
+One call sends one POST; no automatic retry or redirect follows. Authenticated HTTP bounds its MCP JSON-RPC envelope to 512 KiB, with fixed JSON errors for malformed, oversized or unsupported-encoding bodies and a generic safe internal-error boundary; local HTTP keeps its existing surface and limit. The inner Study request is independently bounded to 256 KiB of UTF-8 JSON before codec evaluation and transmission. Network execution, body streaming and caller cancellation share a 25-second deadline. Responses are streamed with a 6 MiB encoded JSON bound, accommodating the owner's 4 MiB decoded inline artifact limit. Declared and observed lengths both apply. UTF-8/JSON/media-type/status/schema/resource mismatches fail before disclosure. Error envelopes expose stable codes and retryability, never upstream messages, issues, token-bearing diagnostic text or stacks.
 
 `artifact.read` verifies canonical base64 plus exact requested/ref byte size and SHA-256. `modelSource` raw packet bytes are deliberately unsupported in model-visible output and fail locally with `STUDY_SOURCE_BYTES_UNSUPPORTED`; this is an MCP exposure limit, not a statement about server permission. Authorized `modelInput` and other supported result/report artifacts retain exact values. No silent numerical redaction or source/storage URL is introduced.
 
@@ -58,7 +58,7 @@ The successful result is `{ ok: true, outcome: "confirmed", requestSha256, respo
 
 The caller must retain its original request. If dispatch may have happened but no valid bound result is available, return `outcome: "unknown"` and a recovery receipt containing the request digest, schema, operation, request ID and supplied idempotency key. The wrapper never echoes mutation prose/content. The caller may explicitly resend the identical original request with `priorUncertainRequestSha256` copied from that receipt. A changed request/key/digest is rejected before I/O and retains only the original uncertain digest. No instruction authorizes a new key or infers no effect.
 
-A valid successful same-request retry confirms the outcome. A later denial/error, including revoked permissions, preserves `outcome: "unknown"` for the original mutation. Local validation, missing backend, cancellation or missing credentials during recovery also retain that original uncertainty. Initial definitive domain errors report `rejected` for that attempt; they do not establish anything about another unknown attempt. New requests never inherit guessed state. The client retains original credentials locally and refreshes/revokes through the established OAuth flow; MCP does not bypass current authorization to settle an uncertain mutation.
+A valid successful same-request retry confirms the outcome. A later denial/error, including revoked permissions, preserves `outcome: "unknown"` for the original mutation. Local validation, missing backend, cancellation or missing credentials during recovery also retain that original uncertainty. All dispatched mutation errors preserve `unknown`: even a valid bound deadline, upstream or reference-validation error can follow a committed effect. Query domain errors report `rejected` for that attempt. Missing credentials and local validation before an initial mutation remain `not_dispatched`; a prior uncertain mutation remains unknown through those later failures. New requests never inherit guessed state. The client retains original credentials locally and refreshes/revokes through the established OAuth flow; MCP does not bypass current authorization to settle an uncertain mutation.
 
 ## Qualification and delivery
 

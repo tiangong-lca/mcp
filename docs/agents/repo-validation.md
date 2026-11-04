@@ -39,7 +39,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: 1d6b50a
+lastReviewedCommit: 48de93ff6b49bcabe5c58d07fe8fc5cb66fe5c51
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -123,3 +123,5 @@ The `pre-push` hook runs `scripts/docpact-gate.sh`, which delegates CLI lookup t
 ## Study consumer qualification
 
 [The Study contract](study-api-contract.md) defines the mandatory behavior suite in `test/study.test.ts`, producer asset integrity and packed protocol checks. `pnpm prepush:gate` remains the complete gate. Installed non-production MCP actor/client → Edge/Database/Worker/Storage, revocation and explicit same-key mutation recovery require separately bound receipts on MCP #104; offline protocol mocks do not replace them. Producer assets alone do not establish Main eligibility, deployment or scientific qualification.
+
+MCP #104 additionally covers a valid approximately 200 KiB Study request through an actual authenticated SDK HTTP connection, proving that the outer parser accepts it before the independent 256 KiB inner bound. Malformed and oversized outer bodies receive fixed JSON errors without body/stack disclosure. Bound mutation deadline/upstream/reference errors retain uncertainty and support only explicit identical-request recovery.

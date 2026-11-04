@@ -23,7 +23,7 @@ checkPaths:
   - test/**
   - scripts/**
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: 1d6b50a
+lastReviewedCommit: 48de93ff6b49bcabe5c58d07fe8fc5cb66fe5c51
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - AGENTS.md

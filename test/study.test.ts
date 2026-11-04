@@ -12,6 +12,11 @@ import {
   STUDY_RESPONSE_MAX_BYTES,
 } from '../src/tools/study.js';
 import { connectInMemory } from './helpers/mcp-client.js';
+import { createHttpApp, MCP_HTTP_REQUEST_MAX_BYTES } from '../src/http_app.js';
+import { withHttpServer } from './helpers/http-server.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { z } from 'zod';
 
 type Request = Parameters<typeof callStudy>[0]['request'];
 type Output = Record<string, unknown>;
@@ -247,7 +252,7 @@ describe('Study owner protocol adapter', () => {
     const output = await invoke(value, answer(denial(value), 403));
     assert.equal(output.ok, false);
     assert.equal(output.code, 'FORBIDDEN');
-    assert.equal(output.outcome, 'rejected');
+    assert.equal(output.outcome, 'unknown');
     for (const secret of [
       actor,
       'sentinel-secret-token',
@@ -305,6 +310,25 @@ describe('Study owner protocol adapter', () => {
       priorUncertainRequestSha256: digest,
     });
     assert.equal(confirmed.outcome, 'confirmed');
+  });
+
+  it('retains uncertainty for first bound errors that may follow mutation commit', async () => {
+    const value = mutation();
+    for (const [code, status, retryable] of [
+      ['DEADLINE_EXCEEDED', 504, true],
+      ['UPSTREAM_UNAVAILABLE', 502, true],
+      ['REFERENCE_MISMATCH', 502, false],
+    ] as const) {
+      const error = { ...denial(value), code, retryable, issues: [] };
+      await assertOwnerPair(value, error);
+      const output = await invoke(value, answer(error, status));
+      assert.equal(output.outcome, 'unknown');
+      assert.equal((output.recovery as Output).idempotencyKey, value.idempotencyKey);
+      const resolved = await invoke(value, answer(mutationSuccess()), {
+        priorUncertainRequestSha256: String((output.recovery as Output).requestSha256),
+      });
+      assert.equal(resolved.outcome, 'confirmed');
+    }
   });
 
   it('does not dispatch without actor token or after caller cancellation', async () => {
@@ -591,6 +615,140 @@ describe('Study owner protocol adapter', () => {
     });
     assert.equal(output.code, 'STUDY_REQUEST_TOO_LARGE');
     assert.equal(calls, 0);
+  });
+
+  it('carries a large valid Study request through real authenticated HTTP and bounds/redacts the outer envelope', async () => {
+    // The prior Express default was 100KiB, smaller than valid public report requests.
+    const value: Request = {
+      ...request(5),
+      operation: 'report.create',
+      idempotencyKey: 'large-http-report',
+      studyId: '11111111-1111-4111-8111-111111111111',
+      parentReportRevisionId: null,
+      runIds: ['22222222-2222-4222-8222-222222222222'],
+      analysisIds: ['33333333-3333-4333-8333-333333333333'],
+      templateId: 'lca.study-report.v2',
+      content: {
+        schemaVersion: 'lca.study-report-draft.v2',
+        title: 'Large HTTP report',
+        claims: [
+          {
+            claimId: 'claim',
+            bundleRef: {
+              type: 'analysisFacts',
+              id: 'facts',
+              contentHash: 'a'.repeat(64),
+              digestScope: 'artifact_bytes_sha256',
+              byteSize: 8,
+              mediaType: 'application/json',
+              schemaVersion: 'lca.study-analysis-facts.v2',
+            },
+            factId: 'fact',
+            canonicalValue: '1',
+            unit: 'kg',
+            display: { style: 'exact' },
+          },
+        ],
+        sections: Array.from({ length: 3 }, (_, i) => ({
+          sectionId: `s-${i}`,
+          title: 'Section',
+          paragraphs: Array.from({ length: 32 }, () => 'a'.repeat(2048)),
+          claimIds: ['claim'],
+        })),
+        tables: [],
+        charts: [],
+        additionalLimitations: [],
+      },
+    };
+    (await loadStudyCodec(value.schemaVersion)).parseRequest(value);
+    const bytes = Buffer.byteLength(JSON.stringify(value));
+    assert.ok(bytes > 100 * 1024 && bytes < STUDY_REQUEST_MAX_BYTES);
+    let received = false;
+    const app = createHttpApp({
+      tokenVerifier: {
+        verifyAccessToken: async (token) => ({
+          token,
+          clientId: 'http-fixture',
+          scopes: [],
+          expiresAt: Math.floor(Date.now() / 1000) + 60,
+        }),
+      },
+      serverFactory: (bearer) => {
+        assert.equal(bearer, actor);
+        const server = new McpServer({ name: 'large-http', version: '1' });
+        server.registerTool(
+          'Study_API_Tool',
+          { inputSchema: { request: z.record(z.string(), z.unknown()) } },
+          async ({ request: actual }) => {
+            assert.deepEqual(actual, value);
+            received = true;
+            const output = await invoke(value, answer(denial(value), 403));
+            return {
+              content: [{ type: 'text', text: JSON.stringify(output) }],
+              structuredContent: output,
+              isError: true,
+            };
+          },
+        );
+        return server;
+      },
+    });
+    await withHttpServer(app, async (baseUrl) => {
+      const client = new Client({ name: 'large-http-client', version: '1' });
+      try {
+        await client.connect(
+          new StreamableHTTPClientTransport(new URL(`${baseUrl}/mcp`), {
+            requestInit: { headers: { authorization: `Bearer ${actor}` } },
+          }),
+        );
+        const result = await client.callTool({
+          name: 'Study_API_Tool',
+          arguments: { request: value },
+        });
+        assert.equal(result.isError, true);
+        assert.equal(received, true);
+        assert.equal((result.structuredContent as Output)?.code, 'FORBIDDEN');
+        assert.equal((result.structuredContent as Output)?.outcome, 'unknown');
+        for (const [body, status] of [
+          [
+            JSON.stringify({
+              sentinel: 'secret-body',
+              padding: 'x'.repeat(MCP_HTTP_REQUEST_MAX_BYTES),
+            }),
+            413,
+          ],
+          ['{"sentinel":"secret-body",', 400],
+        ] as const) {
+          const response = await fetch(`${baseUrl}/mcp`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', authorization: `Bearer ${actor}` },
+            body,
+          });
+          assert.equal(response.status, status);
+          const text = await response.text();
+          assert.equal(text.includes('secret-body'), false);
+          assert.equal(text.includes('stack'), false);
+          assert.match(response.headers.get('content-type') ?? '', /^application\/json/u);
+        }
+        for (const headers of [
+          { 'content-type': 'application/json;charset=sentinel-charset' },
+          { 'content-type': 'application/json', 'content-encoding': 'sentinel-encoding' },
+        ]) {
+          const response = await fetch(`${baseUrl}/mcp`, {
+            method: 'POST',
+            headers: { ...headers, authorization: `Bearer ${actor}` },
+            body: '{}',
+          });
+          assert.equal(response.status, 415);
+          const text = await response.text();
+          assert.equal(text.includes('sentinel'), false);
+          assert.equal(text.includes('node_modules'), false);
+          assert.match(response.headers.get('content-type') ?? '', /^application\/json/u);
+        }
+      } finally {
+        await client.close();
+      }
+    });
   });
 
   it('rejects redirects and unsafe endpoint selection with no forwarded follow-up', async () => {

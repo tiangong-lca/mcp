@@ -34,7 +34,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: 1d6b50a
+lastReviewedCommit: 48de93ff6b49bcabe5c58d07fe8fc5cb66fe5c51
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -151,4 +151,4 @@ This repository has a versioned local `pre-push` hook under `.githooks/pre-push`
 
 ## Study workflow adapter
 
-`src/tools/study.ts` exposes the public Study workflow with explicit V2–V5 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 256 KiB requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.
+`src/tools/study.ts` exposes the public Study workflow with explicit V2–V5 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 512 KiB authenticated MCP envelopes/256 KiB inner requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.

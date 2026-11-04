@@ -258,7 +258,9 @@ export async function callStudy(
         ok: false,
         code: decoded.code,
         retryable: decoded.retryable,
-        outcome: input.priorUncertainRequestSha256 ? 'unknown' : 'rejected',
+        // A domain error can be emitted after dispatch/commit (including codec
+        // checks and deadlines). It does not prove that this mutation had no effect.
+        outcome: mutation || input.priorUncertainRequestSha256 ? 'unknown' : 'rejected',
         ...(mutation ? { recovery } : {}),
       };
     }
