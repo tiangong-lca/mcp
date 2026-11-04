@@ -730,10 +730,11 @@ describe('Study owner protocol adapter', () => {
           assert.equal(text.includes('stack'), false);
           assert.match(response.headers.get('content-type') ?? '', /^application\/json/u);
         }
-        for (const headers of [
+        const unsupportedHeaders: Array<Record<string, string>> = [
           { 'content-type': 'application/json;charset=sentinel-charset' },
           { 'content-type': 'application/json', 'content-encoding': 'sentinel-encoding' },
-        ]) {
+        ];
+        for (const headers of unsupportedHeaders) {
           const response = await fetch(`${baseUrl}/mcp`, {
             method: 'POST',
             headers: { ...headers, authorization: `Bearer ${actor}` },
