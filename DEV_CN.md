@@ -21,9 +21,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
+lastReviewedNote: 'MCP #104: reviewed explicit V2-V5 Study consumer, actor forwarding, exact owner artifacts, bounded downloads and same-key recovery. Installed runtime, hosted CI, Main and root qualification remain separately required.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -183,3 +183,7 @@ docker run -d -p 9278:9278 --env-file .env "${image_uri}:${image_tag}"
 仓库 Dockerfile 会先启用 pnpm Corepack shim，再激活精确 pnpm `11.24.0`，并在最终 OCI `PATH` 中保留 `/pnpm/bin`。推送 ECR 前必须执行无缓存 `linux/arm64` 构建，并验证镜像架构与默认 `tiangong-lca-mcp-http` executable；只检查 Dockerfile 文本不足以证明镜像可用。
 
 该构建会先执行 `apk upgrade --no-cache`。必须读回安装后的 OpenSSL package，并使用推送前不存在且包含 commit 的 ECR tag。必须保留 `--provenance=false`：Amazon ECR 基础扫描不接受 OCI index，因此推送产物必须解析为单一 image manifest。应复用 scan-on-push 已产生的扫描，只在明确返回 `ScanNotFoundException` 时启动新扫描；其他探测错误必须原样失败。只有扫描状态 COMPLETE 且 CRITICAL/HIGH 都为零，才能运行该镜像或注册 ECS task revision。
+
+## Study API 适配层
+
+`Study_API_Tool` 的协议选择、精确产物、授权、下载完整性和显式恢复要求见 [Study 消费契约](docs/agents/study-api-contract.md)。认证 HTTP 转发已验证的同一 actor token。网络结果不明确时保留原请求与幂等键，只能显式重试相同请求；后续权限拒绝不会证明先前操作未生效。原始来源包不进入模型工具输出。STDIO 工厂注册不增加凭证来源；本机未认证 HTTP 不注册 Study。实际安装链路、托管 CI、Main 与 workspace 集成需要独立证据，源码测试不代表发布或生产启用。

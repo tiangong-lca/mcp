@@ -1,4 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { regStudyTool } from '../tools/study.js';
+import { regStudyResources } from '../resources/study.js';
 import { regOpenLcaPrompts } from '../prompts/lca_calculation.js';
 import { regOpenLcaResources } from '../resources/lca_calculation.js';
 import { regFlowSearchTool } from '../tools/flow_hybrid_search.js';
@@ -19,6 +21,8 @@ export function initializeServer(bearerKey?: string): McpServer {
     { capabilities: { prompts: {}, resources: {} } },
   );
 
+  regStudyTool(server, bearerKey);
+  regStudyResources(server);
   regFlowSearchTool(server, bearerKey);
   regProcessSearchTool(server, bearerKey);
   regLifecycleModelSearchTool(server, bearerKey);

@@ -31,6 +31,12 @@ cpSync(fileURLToPath(new URL('../public', import.meta.url)), `${distDir}/public`
   recursive: true,
 });
 
+cpSync(
+  fileURLToPath(new URL('../src/_shared/study_contract', import.meta.url)),
+  `${distDir}/src/_shared/study_contract`,
+  { recursive: true },
+);
+
 if (process.platform !== 'win32') {
   for (const entry of ['index.js', 'index_server.js', 'index_server_local.js']) {
     const entryPath = `${distDir}/src/${entry}`;

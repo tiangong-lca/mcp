@@ -21,9 +21,9 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -109,3 +109,7 @@ pnpm start:server-local
 ```
 
 The HTTP start commands launch MCP Inspector through a cross-platform Node argv wrapper and inject the development-only Inspector environment without POSIX shell syntax.
+
+## LCA Study workflow
+
+The checkout includes `Study_API_Tool` on authenticated HTTP with explicit public Study V2–V5 requests for model/run, analysis, report, review and named sharing workflows. The server forwards your admitted OAuth context and reauthorizes every call. Retain the original mutation request and key for explicit recovery; raw source packet bytes are not exposed. Read [the Study consumer contract](docs/agents/study-api-contract.md) for download integrity, qualification and current limitations. Existing published packages need a separately reviewed release to receive this source increment.

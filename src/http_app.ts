@@ -4,7 +4,7 @@ import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middlew
 import type { OAuthTokenVerifier } from '@modelcontextprotocol/sdk/server/auth/provider.js';
 import type { AuthInfo } from '@modelcontextprotocol/sdk/server/auth/types.js';
 import express from 'express';
-import type { Express, Request } from 'express';
+import type { Express, Request, Response, NextFunction } from 'express';
 import { getServer } from './_shared/init_server_http.js';
 import {
   createSupabaseJwtRuntimeFromEnv,
@@ -17,6 +17,9 @@ import {
   installMcpMethodGuards,
 } from './_shared/http_transport.js';
 type ServerFactory = (downstreamAccessToken?: string, authInfo?: AuthInfo) => McpServer;
+// Accommodate the 256KiB owner request plus MCP JSON-RPC/argument envelopes.
+// The Study tool independently enforces the smaller exact public body cap.
+export const MCP_HTTP_REQUEST_MAX_BYTES = 512 * 1024;
 
 export type HttpAppOptions = {
   allowedOrigins?: string[];
@@ -63,7 +66,7 @@ export function createHttpApp(options: HttpAppOptions = {}): Express {
 
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
-  app.use(express.json());
+  app.use(express.json({ limit: MCP_HTTP_REQUEST_MAX_BYTES }));
   const allowedOrigins = options.allowedOrigins ?? runtime?.allowedOrigins;
   installCors(app, allowedOrigins ? new Set(allowedOrigins) : undefined);
   if (resourceMetadata && resourceMetadataUrl) {
@@ -104,5 +107,33 @@ export function createHttpApp(options: HttpAppOptions = {}): Express {
     });
   });
 
+  app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const kind = error && typeof error === 'object' && 'type' in error ? error.type : undefined;
+    const status =
+      kind === 'entity.too.large'
+        ? 413
+        : kind === 'encoding.unsupported' || kind === 'charset.unsupported'
+          ? 415
+          : ['entity.parse.failed', 'request.aborted', 'request.size.invalid'].includes(
+                String(kind),
+              )
+            ? 400
+            : 500;
+    res.status(status).json({
+      jsonrpc: '2.0',
+      error: {
+        code: status === 400 ? -32700 : status === 500 ? -32603 : -32600,
+        message:
+          status === 413
+            ? 'Request body too large.'
+            : status === 415
+              ? 'Unsupported request encoding.'
+              : status === 400
+                ? 'Invalid request body.'
+                : 'Internal server error.',
+      },
+      id: null,
+    });
+  });
   return app;
 }

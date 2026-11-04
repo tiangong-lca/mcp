@@ -38,9 +38,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-10-25
-lastReviewedCommit: 3ddf1367e7d48fc12cf43e953ef539070c7671fd
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: 2026-11-04
+lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
@@ -119,3 +119,13 @@ Install the versioned local hook once per checkout:
 ```
 
 The `pre-push` hook runs `scripts/docpact-gate.sh`, which delegates CLI lookup to `scripts/docpact` and performs strict config validation plus enforced lint before the push leaves the machine. The wrapper checks `DOCPACT_BIN`, Cargo install locations, Homebrew install locations, and then `PATH`, so local agent shells should not fail only because bare `docpact` is unavailable. The default comparison base is `origin/main`. Override it for unusual stacks with `DOCPACT_BASE_REF=<ref>` or `scripts/docpact-gate.sh --base <ref>`. The gate writes its detailed report to a temporary file so normal pushes do not create `.docpact/runs/` artifacts.
+
+## Study consumer qualification
+
+[The Study contract](study-api-contract.md) defines the mandatory behavior suite in `test/study.test.ts`, producer asset integrity and packed protocol checks. `pnpm prepush:gate` remains the complete gate. Installed non-production MCP actor/client → Edge/Database/Worker/Storage, revocation and explicit same-key mutation recovery require separately bound receipts on MCP #104; offline protocol mocks do not replace them. Producer assets alone do not establish Main eligibility, deployment or scientific qualification.
+
+MCP #104 additionally covers a valid approximately 200 KiB Study request through an actual authenticated SDK HTTP connection, proving that the outer parser accepts it before the independent 256 KiB inner bound. Malformed and oversized outer bodies receive fixed JSON errors without body/stack disclosure. Bound mutation deadline/upstream/reference errors retain uncertainty and support only explicit identical-request recovery.
+
+Study resource discovery/read checks use the real SDK on authenticated, STDIO and local factories. They compare all four request-schema byte hashes to owner files, reject unknown versions, preserve OpenLCA resources and confirm no local HTTP Study registration. The packed consumer repeats schema reads and changes one installed auxiliary schema to prove integrity failure even after an earlier successful codec load, then restores and re-verifies it.
+
+The V2 archive owner-consumer regression rejects active post-state and wrong CAS generations; it was red against the original5b artifact and is qualified against the separately pinned Edge #556 package. Preserve the old failure and exact new producer identity. Packed negative tests detach the owned installed schema hardlink before modifying bytes, avoiding any mutation of the shared pnpm store.

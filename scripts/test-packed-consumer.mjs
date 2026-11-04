@@ -8,13 +8,15 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   writeFileSync,
 } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
-import { delimiter, dirname, join } from 'node:path';
+import { createRequire } from 'node:module';
+import { delimiter, dirname, join, relative, isAbsolute } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runPnpm } from './lib/run-pnpm.mjs';
@@ -207,6 +209,8 @@ try {
     'dist/src/_shared/oauth_runtime.js',
     'dist/src/_shared/supabase_jwt_verifier.js',
     'dist/src/http_app.js',
+    'dist/src/tools/study.js',
+    'dist/src/_shared/study_codec.js',
   ]) {
     assert.equal(existsSync(join(packageRoot, runtimeFile)), true, runtimeFile);
   }
@@ -236,6 +240,100 @@ try {
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server_local.js')).href);
+  const { loadStudyCodec, readStudyRequestSchema } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', '_shared', 'study_codec.js')).href
+  );
+  const { callStudy } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
+  );
+  for (const version of ['v2', 'v3', 'v4', 'v5']) {
+    const schemaVersion = `lca.study-api.${version}`;
+    const codec = await loadStudyCodec(schemaVersion);
+    const request = { schemaVersion, requestId: 'packed-request', operation: 'capability.read' };
+    assert.equal(codec.parseRequest(request).schemaVersion, schemaVersion);
+    assert.equal(codec.operationMetadata['capability.read'].kind, 'query');
+    assert.equal(typeof JSON.parse(readStudyRequestSchema(schemaVersion)), 'object');
+    const denied = await callStudy({ request }, undefined, new AbortController().signal);
+    assert.equal(denied.code, 'STUDY_AUTH_REQUIRED');
+  }
+  const packedSchema = join(
+    packageRoot,
+    'dist',
+    'src',
+    '_shared',
+    'study_contract',
+    'v2',
+    'request.schema.json',
+  );
+  const originalSchema = readFileSync(packedSchema);
+  const ownedRelative = relative(realpathSync(temporaryRoot), realpathSync(packedSchema));
+  assert.ok(ownedRelative && !ownedRelative.startsWith('..') && !isAbsolute(ownedRelative));
+  let isolatedSchema = false;
+  try {
+    // Detect a changed auxiliary schema even after the codec was previously loaded.
+    // Break this installed file's possible pnpm store hardlink before changing bytes.
+    rmSync(packedSchema);
+    isolatedSchema = true;
+    writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]), { flag: 'wx' });
+    await assert.rejects(loadStudyCodec('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
+    assert.throws(() => readStudyRequestSchema('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
+  } finally {
+    if (isolatedSchema) writeFileSync(packedSchema, originalSchema);
+  }
+  await loadStudyCodec('lca.study-api.v2');
+  // Exercise the installed runtime through the actual SDK protocol, without a sibling import.
+  const packageRequire = createRequire(join(realpathSync(packageRoot), 'package.json'));
+  const { Client } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/client/index.js')).href
+  );
+  const { InMemoryTransport } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/inMemory.js')).href
+  );
+  const { McpServer } = await import(
+    pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/server/mcp.js')).href
+  );
+  const { regStudyTool } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
+  );
+  const { regStudyResources } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'resources', 'study.js')).href
+  );
+  const packedServer = new McpServer({ name: 'packed-study', version: '1' });
+  regStudyTool(packedServer);
+  regStudyResources(packedServer);
+  const packedClient = new Client({ name: 'installed-study-client', version: '1' });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  try {
+    await Promise.all([
+      packedServer.connect(serverTransport),
+      packedClient.connect(clientTransport),
+    ]);
+    assert.equal((await packedClient.listTools()).tools[0].name, 'Study_API_Tool');
+    assert.equal((await packedClient.listResources()).resources.length, 5);
+    for (const version of ['v2', 'v3', 'v4', 'v5']) {
+      const uri = `tiangong-study://schema/${version}/request`;
+      const result = await packedClient.readResource({ uri });
+      assert.equal(result.contents[0].text, readStudyRequestSchema(`lca.study-api.${version}`));
+    }
+    await assert.rejects(
+      packedClient.readResource({ uri: 'tiangong-study://schema/v999/request' }),
+    );
+    const denied = await packedClient.callTool({
+      name: 'Study_API_Tool',
+      arguments: {
+        request: {
+          schemaVersion: 'lca.study-api.v5',
+          requestId: 'installed-request',
+          operation: 'capability.read',
+        },
+      },
+    });
+    assert.equal(denied.isError, true);
+    assert.equal(denied.structuredContent.code, 'STUDY_AUTH_REQUIRED');
+  } finally {
+    await packedClient.close();
+    await packedServer.close();
+  }
   await assertPackedHttpBinStarts(globalBinDirectory, globalEnvironment);
 } finally {
   rmSync(temporaryRoot, { force: true, maxRetries: 10, recursive: true, retryDelay: 100 });

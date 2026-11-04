@@ -1,8 +1,8 @@
 version: 1
 layout: repo
-lastReviewedAt: '2026-10-25'
-lastReviewedCommit: '3ddf1367e7d48fc12cf43e953ef539070c7671fd'
-lastReviewedNote: 'MCP #97: reviewed explicit backend guards and offline/STDIO regression, plus the bounded Zod/body-parser/Vite/Undici security repair. HTTP OAuth, public schemas, SDK, Express, source package version, Docker pin and publication boundaries are preserved.'
+lastReviewedAt: "2026-11-04"
+lastReviewedCommit: "e141b4108eb864e99e185c81f6fb32b1278ba1c8"
+lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 
 catalog:
   repos:
@@ -278,6 +278,26 @@ repo:
   owner: mcp
 
 rules:
+  - id: mcp-study-consumer-contract
+    scope: repo
+    repo: mcp
+    triggers:
+      - path: src/tools/study.ts
+        kind: tool-wrapper
+      - path: src/resources/study.ts
+        kind: resource
+      - path: src/_shared/study_codec.ts
+        kind: shared-runtime
+      - path: src/_shared/study_contract/**
+        kind: owner-contract-artifact
+      - path: test/study.test.ts
+        kind: automated-test
+      - path: docs/agents/study-api-contract.md
+        kind: contract
+    requiredDocs:
+      - path: docs/agents/study-api-contract.md
+        mode: review_or_update
+    reason: The thin Study consumer must preserve exact public-family selection, owner artifact integrity, actor authorization, byte limits and explicit mutation recovery.
   - id: mcp-dependency-monitoring-contract
     scope: repo
     repo: mcp
