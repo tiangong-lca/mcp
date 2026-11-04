@@ -8,6 +8,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   writeFileSync,
@@ -255,7 +256,7 @@ try {
     assert.equal(denied.code, 'STUDY_AUTH_REQUIRED');
   }
   // Exercise the installed runtime through the actual SDK protocol, without a sibling import.
-  const packageRequire = createRequire(join(packageRoot, 'package.json'));
+  const packageRequire = createRequire(join(realpathSync(packageRoot), 'package.json'));
   const { Client } = await import(
     pathToFileURL(packageRequire.resolve('@modelcontextprotocol/sdk/client/index.js')).href
   );
