@@ -289,7 +289,7 @@ export function regStudyTool(server: McpServer, bearer?: string): void {
     {
       title: 'LCA Study API',
       description:
-        'Execute one explicit Edge Study V2/V3/V4/V5 request: Study/Scenario/model preparation, run/task, analyses, report authoring, review/finalization and named sharing/export. May mutate data. Exact owner schemas validate every operation; capability discovery is not authorization. V5 remains runtime-qualified/default-off. No automatic retry, version fallback, key generation or source packet bytes. Caller retains the original request for explicit same-key recovery. requestSha256 is a transport receipt, never a domain/config identity.',
+        'Execute one explicit Edge Study V2/V3/V4/V5 request. First read tiangong-study://schema/v2/request (or v3/v4/v5) and tiangong-study://consumer/contract; then call capability.read in the selected family. Covers Study/Scenario/model preparation, run/task, analyses, report authoring, review/finalization and named sharing/export. May mutate data. Exact owner codecs validate all fields; discovery is not authorization. V5 remains independently configured/default-off. No automatic retry, version fallback, key generation or raw source packet bytes. Retain the original request for explicit same-key recovery; requestSha256 is a transport receipt, never a domain/config identity.',
       inputSchema,
       annotations: {
         readOnlyHint: false,

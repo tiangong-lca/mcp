@@ -39,7 +39,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: c4f33dc
+lastReviewedCommit: 2540a133bfb8f3d73f3a2f2f7f749493f3472097
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -125,3 +125,5 @@ The `pre-push` hook runs `scripts/docpact-gate.sh`, which delegates CLI lookup t
 [The Study contract](study-api-contract.md) defines the mandatory behavior suite in `test/study.test.ts`, producer asset integrity and packed protocol checks. `pnpm prepush:gate` remains the complete gate. Installed non-production MCP actor/client → Edge/Database/Worker/Storage, revocation and explicit same-key mutation recovery require separately bound receipts on MCP #104; offline protocol mocks do not replace them. Producer assets alone do not establish Main eligibility, deployment or scientific qualification.
 
 MCP #104 additionally covers a valid approximately 200 KiB Study request through an actual authenticated SDK HTTP connection, proving that the outer parser accepts it before the independent 256 KiB inner bound. Malformed and oversized outer bodies receive fixed JSON errors without body/stack disclosure. Bound mutation deadline/upstream/reference errors retain uncertainty and support only explicit identical-request recovery.
+
+Study resource discovery/read checks use the real SDK on authenticated, STDIO and local factories. They compare all four request-schema byte hashes to owner files, reject unknown versions, preserve OpenLCA resources and confirm no local HTTP Study registration. The packed consumer repeats schema reads and changes one installed auxiliary schema to prove integrity failure even after an earlier successful codec load, then restores and re-verifies it.

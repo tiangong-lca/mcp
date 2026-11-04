@@ -34,7 +34,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: c4f33dc
+lastReviewedCommit: 2540a133bfb8f3d73f3a2f2f7f749493f3472097
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -152,3 +152,5 @@ This repository has a versioned local `pre-push` hook under `.githooks/pre-push`
 ## Study workflow adapter
 
 `src/tools/study.ts` exposes the public Study workflow with explicit V2–V5 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 512 KiB authenticated MCP envelopes/256 KiB inner requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.
+
+`src/resources/study.ts` exposes the four exact integrity-checked owner request schemas and a concise consumer contract on the same actor-capable surfaces. MCP clients can inspect operation fields before calling the generic Study tool; public static schemas confer no data permission. Existing OpenLCA resources and the local-only HTTP resource surface are preserved.

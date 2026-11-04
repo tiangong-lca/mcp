@@ -240,7 +240,7 @@ try {
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server.js')).href);
   await import(pathToFileURL(join(packageRoot, 'dist', 'src', 'index_server_local.js')).href);
-  const { loadStudyCodec } = await import(
+  const { loadStudyCodec, readStudyRequestSchema } = await import(
     pathToFileURL(join(packageRoot, 'dist', 'src', '_shared', 'study_codec.js')).href
   );
   const { callStudy } = await import(
@@ -252,9 +252,29 @@ try {
     const request = { schemaVersion, requestId: 'packed-request', operation: 'capability.read' };
     assert.equal(codec.parseRequest(request).schemaVersion, schemaVersion);
     assert.equal(codec.operationMetadata['capability.read'].kind, 'query');
+    assert.equal(typeof JSON.parse(readStudyRequestSchema(schemaVersion)), 'object');
     const denied = await callStudy({ request }, undefined, new AbortController().signal);
     assert.equal(denied.code, 'STUDY_AUTH_REQUIRED');
   }
+  const packedSchema = join(
+    packageRoot,
+    'dist',
+    'src',
+    '_shared',
+    'study_contract',
+    'v2',
+    'request.schema.json',
+  );
+  const originalSchema = readFileSync(packedSchema);
+  try {
+    // Detect a changed auxiliary schema even after the codec was previously loaded.
+    writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]));
+    await assert.rejects(loadStudyCodec('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
+    assert.throws(() => readStudyRequestSchema('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
+  } finally {
+    writeFileSync(packedSchema, originalSchema);
+  }
+  await loadStudyCodec('lca.study-api.v2');
   // Exercise the installed runtime through the actual SDK protocol, without a sibling import.
   const packageRequire = createRequire(join(realpathSync(packageRoot), 'package.json'));
   const { Client } = await import(
@@ -269,8 +289,12 @@ try {
   const { regStudyTool } = await import(
     pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
   );
+  const { regStudyResources } = await import(
+    pathToFileURL(join(packageRoot, 'dist', 'src', 'resources', 'study.js')).href
+  );
   const packedServer = new McpServer({ name: 'packed-study', version: '1' });
   regStudyTool(packedServer);
+  regStudyResources(packedServer);
   const packedClient = new Client({ name: 'installed-study-client', version: '1' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   try {
@@ -279,6 +303,15 @@ try {
       packedClient.connect(clientTransport),
     ]);
     assert.equal((await packedClient.listTools()).tools[0].name, 'Study_API_Tool');
+    assert.equal((await packedClient.listResources()).resources.length, 5);
+    for (const version of ['v2', 'v3', 'v4', 'v5']) {
+      const uri = `tiangong-study://schema/${version}/request`;
+      const result = await packedClient.readResource({ uri });
+      assert.equal(result.contents[0].text, readStudyRequestSchema(`lca.study-api.${version}`));
+    }
+    await assert.rejects(
+      packedClient.readResource({ uri: 'tiangong-study://schema/v999/request' }),
+    );
     const denied = await packedClient.callTool({
       name: 'Study_API_Tool',
       arguments: {

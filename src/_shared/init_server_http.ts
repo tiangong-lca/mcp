@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { regStudyTool } from '../tools/study.js';
+import { regStudyResources } from '../resources/study.js';
 import { regCrudTool } from '../tools/db_crud.js';
 import { regFlowSearchTool } from '../tools/flow_hybrid_search.js';
 import { regGladDatasetTools } from '../tools/glad_dataset_search.js';
@@ -13,6 +14,7 @@ export function initializeServer(bearerKey?: string): McpServer {
   });
 
   regStudyTool(server, bearerKey);
+  regStudyResources(server);
   regFlowSearchTool(server, bearerKey);
   regProcessSearchTool(server, bearerKey);
   regLifecycleModelSearchTool(server, bearerKey);

@@ -17,6 +17,10 @@ import { withHttpServer } from './helpers/http-server.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { z } from 'zod';
+import { readFileSync } from 'node:fs';
+import { initializeServer as initializeHttpServer } from '../src/_shared/init_server_http.js';
+import { initializeServer as initializeStdioServer } from '../src/_shared/init_server.js';
+import { initializeServer as initializeLocalServer } from '../src/_shared/init_server_http_local.js';
 
 type Request = Parameters<typeof callStudy>[0]['request'];
 type Output = Record<string, unknown>;
@@ -140,6 +144,57 @@ function artifact(size: number, type = 'modelInput') {
 }
 
 describe('Study owner protocol adapter', () => {
+  it('discovers exact bounded owner schemas through SDK resources and preserves existing resource surfaces', async () => {
+    for (const [server, hasStudy, hasOpenLca] of [
+      [initializeHttpServer(actor), true, false],
+      [initializeStdioServer(actor), true, true],
+      [initializeLocalServer(), false, true],
+    ] as const) {
+      const connection = await connectInMemory(server);
+      try {
+        const resources = await connection.client.listResources();
+        assert.equal(
+          resources.resources.some((r) => r.uri === 'resource://openlca'),
+          hasOpenLca,
+        );
+        const schemas = resources.resources.filter((r) =>
+          r.uri.startsWith('tiangong-study://schema/'),
+        );
+        assert.equal(schemas.length, hasStudy ? 4 : 0);
+        if (!hasStudy) continue;
+        for (const version of ['v2', 'v3', 'v4', 'v5']) {
+          const uri = `tiangong-study://schema/${version}/request`;
+          const result = await connection.client.readResource({ uri });
+          assert.equal(result.contents.length, 1);
+          const content = result.contents[0];
+          assert.equal(content.uri, uri);
+          assert.equal(content.mimeType, 'application/schema+json');
+          assert.ok('text' in content);
+          const original = readFileSync(
+            new URL(
+              `../src/_shared/study_contract/${version}/request.schema.json`,
+              import.meta.url,
+            ),
+          );
+          assert.ok(original.length < 256 * 1024);
+          assert.equal(sha(content.text), sha(original));
+          assert.equal(JSON.parse(content.text).$schema, 'http://json-schema.org/draft-07/schema#');
+        }
+        const contract = await connection.client.readResource({
+          uri: 'tiangong-study://consumer/contract',
+        });
+        assert.ok('text' in contract.contents[0]);
+        assert.match(contract.contents[0].text, /priorUncertainRequestSha256/u);
+        assert.match(contract.contents[0].text, /4MiB/u);
+        await assert.rejects(
+          connection.client.readResource({ uri: 'tiangong-study://schema/v999/request' }),
+        );
+      } finally {
+        await connection.close();
+      }
+    }
+  });
+
   for (const version of [2, 3, 4, 5] as const) {
     it(`round-trips exact V${version} capability and preserves disabled runtime state`, async () => {
       const value = request(version);

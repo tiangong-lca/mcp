@@ -12,6 +12,7 @@ whenToUpdate:
   - when Study registration, supported API families, contained owner assets or integrity/recovery boundaries change
 checkPaths:
   - src/tools/study.ts
+  - src/resources/study.ts
   - src/_shared/study_codec.ts
   - src/_shared/study_contract/**
   - src/_shared/init_server.ts
@@ -20,7 +21,7 @@ checkPaths:
   - scripts/build.mjs
   - scripts/test-packed-consumer.mjs
 lastReviewedAt: 2026-11-04
-lastReviewedCommit: c4f33dc
+lastReviewedCommit: 2540a133bfb8f3d73f3a2f2f7f749493f3472097
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - ../../AGENTS.md
@@ -42,7 +43,7 @@ The tool accepts `{ "request": <exact public request> }`. `request.schemaVersion
 
 Owner files under `src/_shared/study_contract/v2` through `v5` are immutable portable packages built from Edge commit `5b27e2e1fe05e3ff7c3a89f1aa59e8c84f244aff`. V2/V3/V4 were built in a clean detached owner checkout; V5 is the original approved producer artifact. Each manifest is pinned independently in `study_codec.ts`; every declared file is byte-size/hash checked before evaluating the self-contained module. Original declarations, JSON schemas and licenses ship unchanged. Oxlint and Prettier exclude only those producer directories; MCP source remains linted. Build copies them into the same relative package path, and packed consumers load them outside the source checkout.
 
-The public input envelope lists the schema discriminator and request envelope. The complete selected request shapes are the shipped owner `request.schema.json`/`index.d.ts`; runtime refinements remain in the selected codec. MCP does not maintain a parallel domain schema.
+The public input envelope lists the schema discriminator and request envelope. Authenticated HTTP and STDIO list four static resources: `tiangong-study://schema/v2/request`, `tiangong-study://schema/v3/request`, `tiangong-study://schema/v4/request` and `tiangong-study://schema/v5/request`. Each read uses the same full pinned-manifest/file verification as runtime dispatch and returns the exact owner request JSON Schema bytes, bounded to 256 KiB. Unknown resource versions are rejected. The public `tiangong-study://consumer/contract` resource supplies concise operation-family, recovery, artifact-size, authorization and qualification guidance. The tool description points clients to these resources and same-family capability.read. Existing resources remain available and local HTTP registers none of these Study resources. Runtime refinements remain in the selected codec; the package also retains the original owner declarations. MCP does not reconstruct or maintain a parallel domain schema.
 
 ## Transport and data integrity
 

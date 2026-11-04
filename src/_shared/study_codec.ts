@@ -36,8 +36,8 @@ export const studyDigest = (bytes: Uint8Array | string): string =>
 export const studyObject = (value: unknown): value is StudyObject =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 
-/** Verify every contained file before evaluating the self-contained owner module. */
-export async function loadStudyCodec(schema: string): Promise<StudyCodec> {
+/** The same verification boundary serves runtime dispatch and schema discovery. */
+function verifiedOwnerFiles(schema: string): Map<string, Buffer> {
   const expected = pins[schema];
   if (!expected) throw new Error('STUDY_UNSUPPORTED_SCHEMA');
   const version = schema.slice(-2);
@@ -54,7 +54,7 @@ export async function loadStudyCodec(schema: string): Promise<StudyCodec> {
     !Array.isArray(manifest.files)
   )
     throw new Error('STUDY_CONTRACT_INTEGRITY');
-  let code: Buffer | undefined;
+  const files = new Map<string, Buffer>();
   for (const file of manifest.files) {
     if (
       !studyObject(file) ||
@@ -65,8 +65,21 @@ export async function loadStudyCodec(schema: string): Promise<StudyCodec> {
     const bytes = readFileSync(new URL(file.path, root));
     if (bytes.length !== file.bytes || studyDigest(bytes) !== file.sha256)
       throw new Error('STUDY_CONTRACT_INTEGRITY');
-    if (file.path === 'index.mjs') code = bytes;
+    files.set(file.path, bytes);
   }
+  return files;
+}
+
+/** Exact owner bytes only: no reconstructed or parallel request schema. */
+export function readStudyRequestSchema(schema: string): string {
+  const bytes = verifiedOwnerFiles(schema).get('request.schema.json');
+  if (!bytes || bytes.length > 256 * 1024) throw new Error('STUDY_CONTRACT_INTEGRITY');
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+}
+
+/** Verify every contained file before evaluating the self-contained owner module. */
+export async function loadStudyCodec(schema: string): Promise<StudyCodec> {
+  const code = verifiedOwnerFiles(schema).get('index.mjs');
   if (!code) throw new Error('STUDY_CONTRACT_INTEGRITY');
   const codec: unknown = await import(`data:text/javascript;base64,${code.toString('base64')}`);
   if (
