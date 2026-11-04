@@ -39,7 +39,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-05
-lastReviewedCommit: 54f68bdc65d50a3b6225fafc695912c8ee35e159
+lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
 lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - ../../AGENTS.md
@@ -131,3 +131,5 @@ Study resource discovery/read checks use the real SDK on authenticated, STDIO an
 The V2 archive owner-consumer regression rejects active post-state and wrong CAS generations; it was red against the original5b artifact and is qualified against the separately pinned Edge #556 package. Preserve the old failure and exact new producer identity. Packed negative tests detach the owned installed schema hardlink before modifying bytes, avoiding any mutation of the shared pnpm store.
 
 MCP #107 extends the same gate to V6. Exact owner-generated method/evidence fixtures are transport evidence only; their committed source/hash and synthetic classification are retained. Schema discovery, recorded-unverified output, request/response selection, export CAS, method-facts integrity and sticky unknown recovery must pass alongside all historical tests. The packed gate reads all five schemas and rejects tampering in both the historical V2 and V6 files without touching the shared package store. Actual V6 OAuth/native/Storage proof, source CI, Main merge and root #2181 inclusion remain separate acceptance steps.
+
+The final V6 facade correction additionally checks malformed report create/save Unicode before any transport call, alongside legal Unicode positives. Exact request/response schema bytes remain compatible; source artifact identity and prior successful CI remain separately recorded.

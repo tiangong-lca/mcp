@@ -34,7 +34,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-05
-lastReviewedCommit: 54f68bdc65d50a3b6225fafc695912c8ee35e159
+lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
 lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - ../../AGENTS.md

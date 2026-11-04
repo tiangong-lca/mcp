@@ -396,6 +396,47 @@ describe('Study owner protocol adapter', () => {
     assert.equal(calls, 0);
   });
 
+  it('rejects malformed Unicode in V6 report authoring through owner validation before any dispatch', async () => {
+    const codec = await loadStudyCodec('lca.study-api.v6');
+    const create = methodFixture.reportCreateRequest as Request;
+    const save = {
+      ...request(6),
+      operation: 'report.save',
+      idempotencyKey: 'save-unicode',
+      target: {
+        type: 'reportRevision',
+        id: methodFixture.reportData.value.reportRevisionId,
+        expectedRevision: 2,
+      },
+      content: structuredClone(methodFixture.reportCreateRequest.content),
+    } as Request;
+    let calls = 0;
+    const fetcher: typeof fetch = async () => {
+      calls++;
+      throw new Error('invalid content dispatched');
+    };
+    for (const original of [create, save]) {
+      codec.parseRequest(original);
+      const positive = structuredClone(original);
+      const content = positive.content as typeof methodFixture.reportCreateRequest.content;
+      content.title = '🌏'.repeat(256);
+      codec.parseRequest(positive);
+      for (const value of ['\ud800', '\udfff']) {
+        for (const field of ['title', 'paragraph', 'unit']) {
+          const invalid = structuredClone(original);
+          const c = invalid.content as typeof methodFixture.reportCreateRequest.content;
+          if (field === 'title') c.title = value;
+          else if (field === 'paragraph') c.sections[0].paragraphs[0] = value;
+          else c.claims[0].unit = value;
+          const result = await invoke(invalid, fetcher);
+          assert.equal(result.code, 'STUDY_INVALID_REQUEST');
+          assert.equal(result.outcome, 'not_dispatched');
+        }
+      }
+    }
+    assert.equal(calls, 0);
+  });
+
   it('keeps an uncertain V6 method mutation bound to its exact family and original request across denial', async () => {
     const value = methodFixture.assessmentRequest as Request;
     const first = await invoke(value, async () => {

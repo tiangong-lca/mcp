@@ -238,5 +238,53 @@
       "reportRevisionId": "6070d9c3-0a8c-43e5-a60a-3e8a8e9c6d7e",
       "reportContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     }
+  },
+  "reportCreateRequest": {
+    "runIds": ["90400000-0000-4000-8000-000000000012"],
+    "content": {
+      "title": "Source-bound method assessment",
+      "charts": [],
+      "claims": [
+        {
+          "unit": "kg",
+          "factId": "category:sql-method:characterised",
+          "claimId": "method-category",
+          "display": {
+            "style": "exact"
+          },
+          "bundleRef": {
+            "id": "91200000-0000-4000-8000-000000000060",
+            "type": "methodAssessmentFacts",
+            "byteSize": 2,
+            "mediaType": "application/json",
+            "contentHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "digestScope": "artifact_bytes_sha256",
+            "schemaVersion": "lca.study-method-assessment-facts.v1"
+          },
+          "canonicalValue": "1"
+        }
+      ],
+      "tables": [],
+      "sections": [
+        {
+          "title": "Machine and professional states",
+          "claimIds": ["method-category"],
+          "sectionId": "scope",
+          "paragraphs": [
+            "Mandatory method requirements and professional states are generated from exact facts; no scientific approval is claimed."
+          ]
+        }
+      ],
+      "schemaVersion": "lca.study-method-report-draft.v1",
+      "additionalLimitations": ["SQL metadata fixture only."]
+    },
+    "studyId": "89400000-0000-4000-8000-000000000010",
+    "operation": "report.create",
+    "requestId": "method-report",
+    "templateId": "lca.study-method-report.v1",
+    "schemaVersion": "lca.study-api.v6",
+    "idempotencyKey": "method-report",
+    "methodAssessmentIds": ["1bbeb001-bfe0-4c1a-b537-43bbe053b763"],
+    "parentReportRevisionId": null
   }
 }

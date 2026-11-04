@@ -35,7 +35,7 @@ const pins: Readonly<Record<string, string>> = Object.freeze({
   'lca.study-api.v3': 'a3ac80bb7f16f474f9ef0d017c69121d3a11050e24fa9d8c16b344bb26a3f40b',
   'lca.study-api.v4': '33fe29178eadb23b968ed0bbb0af0f99fc929cfbdc847d24939ad033e5b9719b',
   'lca.study-api.v5': '3eea620ab4041f1a6fcfab34bd2afd275f8cbd3cbcf56ba6a187076e9bb3cf94',
-  'lca.study-api.v6': 'c1fee1ab2b990d96ff160d2a86f6d4f4690122c8ebb0af30d1a64bcf29c77f84',
+  'lca.study-api.v6': '003deb096baa38b7ff6cb5474815ea0eb92bb4c6d188bb6c27f81448026d0427',
 });
 export const studyDigest = (bytes: Uint8Array | string): string =>
   createHash('sha256').update(bytes).digest('hex');
@@ -59,7 +59,7 @@ function verifiedOwnerFiles(schema: string): Map<string, Buffer> {
       (schema === 'lca.study-api.v2'
         ? '439f8112a8f9945479c63ffaa8cfe688e9d20216'
         : schema === 'lca.study-api.v6'
-          ? 'a33a5fbcc8f76f2cf29f68792d7124d6cce94615'
+          ? 'c322ec2d018dcd0cbb66549ecbddfbe8b10dc59b'
           : '5b27e2e1fe05e3ff7c3a89f1aa59e8c84f244aff') ||
     manifest.sourceStatus !== 'committed' ||
     !Array.isArray(manifest.files)

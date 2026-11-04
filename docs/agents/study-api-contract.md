@@ -21,7 +21,7 @@ checkPaths:
   - scripts/build.mjs
   - scripts/test-packed-consumer.mjs
 lastReviewedAt: 2026-11-05
-lastReviewedCommit: 54f68bdc65d50a3b6225fafc695912c8ee35e159
+lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
 lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - ../../AGENTS.md
@@ -71,10 +71,12 @@ W15's current consumer work adds no exported-HTML action host or OpenLCA Study e
 
 ## V6 method consumer qualification
 
-The V6 artifact pins clean committed Edge source `a33a5fbcc8f76f2cf29f68792d7124d6cce94615`, manifest SHA-256 `c1fee1ab2b990d96ff160d2a86f6d4f4690122c8ebb0af30d1a64bcf29c77f84`. Its required async `validateResponseContentForRequest` complements synchronous selection: evidence-create receipts bind the original content hash and byte size, and method config identity remains owner-defined. MCP invokes the existing owner config hash helper to reject an inconsistent caller-supplied hash before dispatch; it generates no config field. All successful/denied V6 responses pass the owner async complement before disclosure. No domain canonicalization is implemented in MCP.
+The V6 artifact pins clean committed Edge source `c322ec2d018dcd0cbb66549ecbddfbe8b10dc59b`, manifest SHA-256 `003deb096baa38b7ff6cb5474815ea0eb92bb4c6d188bb6c27f81448026d0427`. Its required async `validateResponseContentForRequest` complements synchronous selection: evidence-create receipts bind the original content hash and byte size, and method config identity remains owner-defined. MCP invokes the existing owner config hash helper to reject an inconsistent caller-supplied hash before dispatch; it generates no config field. All successful/denied V6 responses pass the owner async complement before disclosure. No domain canonicalization is implemented in MCP.
 
 V6 is an explicit independent family, with thirty-three owner operations. `method.evidence.create/read` records and selects evidence; `method.assessment.request/read` starts and reads an assessment bound to the original baseline/config/module. Use its typed `methodAssessment` selector for task actions. A completed job is a runtime fact; it does not establish method conformity. Capabilities preserve exact limits and runtime admission.
 
 Method evidence remains `recorded_unverified`, including a record declared as professional evidence. The CLI or other caller retains exact identifiers and uses a separately trusted verifier for export4. MCP preserves the owner's method facts, all unavailable reasons and source/coverage states without recalculation, rounding, truncation or additional approval flags. The present pinned factor set and all-pairs coverage make complete-sixteen normalization/weighting unavailable for every legal nonempty inventory; absent source factors do not become zero or scientifically non-applicable. Complete industry-case and professional acceptance remain in workspace #2181.
 
 The canonical tests include exact synthetic public DTO fixtures extracted from a recorded Edge commit; their source hash and classification accompany the fixture. They exercise evidence and assessment selection, opaque 4MiB method facts, Unicode/byte and extra approval rejection, export review-CAS substitution, and sticky same-request recovery after denial. They do not assert the synthetic artifact metadata or placeholder signatures were registered in a live Study. Installed-package discovery verifies V6 owner schema bytes; auxiliary tampering is rejected even after prior codec import, then the owned installed file is restored.
+
+The corrected V6 owner parser rejects isolated UTF-16 surrogates in report create/save authored content before transport. Valid Unicode remains unchanged. Its request/response schema bytes remain identical to the original a33 candidate; the contained declarations additionally expose the owner’s three artifact readers, which this MCP adapter does not invoke. Earlier candidate packages and their CI evidence remain distinct.
