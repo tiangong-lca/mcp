@@ -17,6 +17,7 @@ import { withHttpServer } from './helpers/http-server.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { z } from 'zod';
+import methodFixture from './fixtures/study-method.json' with { type: 'json' };
 import { readFileSync } from 'node:fs';
 import { initializeServer as initializeHttpServer } from '../src/_shared/init_server_http.js';
 import { initializeServer as initializeStdioServer } from '../src/_shared/init_server.js';
@@ -29,7 +30,7 @@ const publishableKey = 'sb_publishable_fixture';
 const endpoint = 'http://127.0.0.1:9191/functions/v1/app_lca_study';
 const signal = () => new AbortController().signal;
 const sha = (value: Uint8Array | string) => createHash('sha256').update(value).digest('hex');
-const request = (version: 2 | 3 | 4 | 5 = 2): Request => ({
+const request = (version: 2 | 3 | 4 | 5 | 6 = 2): Request => ({
   schemaVersion: `lca.study-api.v${version}`,
   requestId: `request-${version}`,
   operation: 'capability.read',
@@ -45,6 +46,18 @@ const capabilities = (version = 2) => ({
     operations: ['capability.read'],
     ...(version === 2 ? { profiles: [] } : {}),
     ...(version === 3 || version === 5 ? { analysisProfiles: [], reportTemplates: [] } : {}),
+    ...(version === 6
+      ? {
+          methodProfiles: [],
+          reportTemplates: [],
+          limits: {
+            maxEvidenceRefs: 0,
+            maxSelectedFactorRecords: 0,
+            maxFactsBytes: 4194304,
+            maxProjectionBytes: 2000000,
+          },
+        }
+      : {}),
     ...(version >= 4
       ? { finalizationProfiles: [], reviewClasses: [], disclosurePolicies: [] }
       : {}),
@@ -160,9 +173,9 @@ describe('Study owner protocol adapter', () => {
         const schemas = resources.resources.filter((r) =>
           r.uri.startsWith('tiangong-study://schema/'),
         );
-        assert.equal(schemas.length, hasStudy ? 4 : 0);
+        assert.equal(schemas.length, hasStudy ? 5 : 0);
         if (!hasStudy) continue;
-        for (const version of ['v2', 'v3', 'v4', 'v5']) {
+        for (const version of ['v2', 'v3', 'v4', 'v5', 'v6']) {
           const uri = `tiangong-study://schema/${version}/request`;
           const result = await connection.client.readResource({ uri });
           assert.equal(result.contents.length, 1);
@@ -195,7 +208,7 @@ describe('Study owner protocol adapter', () => {
     }
   });
 
-  for (const version of [2, 3, 4, 5] as const) {
+  for (const version of [2, 3, 4, 5, 6] as const) {
     it(`round-trips exact V${version} capability and preserves disabled runtime state`, async () => {
       const value = request(version);
       const response = capabilities(version);
@@ -217,6 +230,265 @@ describe('Study owner protocol adapter', () => {
       assert.equal(output.requestSha256, sha(JSON.stringify(value)));
     });
   }
+
+  it('forwards exact V6 assessment/evidence and read selections without upgrading their qualification', async () => {
+    const pairs: Array<[Request, unknown]> = [
+      [methodFixture.assessmentRequest as Request, methodFixture.assessmentData],
+      [methodFixture.evidenceRequest as Request, methodFixture.evidenceData],
+      [
+        {
+          ...request(6),
+          operation: 'method.assessment.read',
+          assessmentId: methodFixture.assessmentData.value.assessmentId,
+        },
+        methodFixture.assessmentData,
+      ],
+      [
+        {
+          ...request(6),
+          operation: 'method.evidence.read',
+          evidenceId: methodFixture.evidenceData.value.evidenceId,
+        },
+        methodFixture.evidenceData,
+      ],
+      [
+        {
+          ...request(6),
+          operation: 'report.read',
+          reportRevisionId: methodFixture.reportData.value.reportRevisionId,
+        },
+        methodFixture.reportData,
+      ],
+    ];
+    for (const [value, data] of pairs) {
+      const response = {
+        schemaVersion: value.schemaVersion,
+        requestId: value.requestId,
+        ok: true,
+        data,
+      };
+      await assertOwnerPair(value, response);
+      const output = await invoke(value, async (_url, options) => {
+        assert.equal(typeof options?.body, 'string');
+        assert.deepEqual(JSON.parse(options?.body as string), value);
+        assert.equal(new Headers(options?.headers).get('authorization'), `Bearer ${actor}`);
+        return json(response);
+      });
+      assert.equal(output.outcome, 'confirmed');
+      assert.deepEqual(output.response, response);
+    }
+    assert.equal(methodFixture.evidenceData.value.status, 'recorded_unverified');
+    assert.equal(
+      methodFixture.assessmentRequest.config.declarations.categoryRule.kind,
+      'noneEstablished',
+    );
+  });
+
+  it('preserves V6 evidence Unicode and rejects unknown approval, byte overflow and cross-family fields before I/O', async () => {
+    const value = {
+      ...methodFixture.evidenceRequest,
+      content: {
+        ...methodFixture.evidenceRequest.content,
+        title: '原始声明🌏',
+        statement: 'Recorded statement — not scientific approval.',
+      },
+    } as Request;
+    let calls = 0;
+    assert.equal(
+      (
+        await invoke(value, async (_url, options) => {
+          calls++;
+          assert.equal(typeof options?.body, 'string');
+          assert.deepEqual(JSON.parse(options?.body as string), value);
+          return json(denial(value), 403);
+        })
+      ).code,
+      'FORBIDDEN',
+    );
+    const bad = [
+      { ...value, schemaVersion: 'lca.study-api.v5' },
+      { ...value, content: { ...methodFixture.evidenceRequest.content, scientificApproval: true } },
+      { ...value, content: { ...methodFixture.evidenceRequest.content, title: '\ud800' } },
+      {
+        ...value,
+        content: { ...methodFixture.evidenceRequest.content, statement: 'x'.repeat(65537) },
+      },
+      {
+        ...methodFixture.assessmentRequest,
+        config: { ...methodFixture.assessmentRequest.config, absenceMeansZero: true },
+      },
+      { ...methodFixture.assessmentRequest, operation: 'analysis.request' },
+    ] as Request[];
+    for (const invalid of bad) {
+      const output = await invoke(invalid, async () => {
+        calls++;
+        throw new Error('unexpected fetch');
+      });
+      assert.equal(output.code, 'STUDY_INVALID_REQUEST');
+      assert.equal(output.outcome, 'not_dispatched');
+    }
+    assert.equal(calls, 1);
+  });
+
+  it('rejects V6 method selection and export review-CAS substitutions without returning mismatched content', async () => {
+    const assessment = methodFixture.assessmentRequest as Request;
+    const response = {
+      schemaVersion: assessment.schemaVersion,
+      requestId: assessment.requestId,
+      ok: true,
+      data: methodFixture.assessmentData,
+    };
+    for (const field of ['studyId', 'configHash'] as const) {
+      const wrong = structuredClone(response);
+      wrong.data.value[field] =
+        field === 'studyId' ? 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' : 'a'.repeat(64);
+      const output = await invoke(assessment, answer(wrong));
+      assert.equal(output.code, 'STUDY_INVALID_RESPONSE');
+      assert.equal(output.outcome, 'unknown');
+      assert.equal('response' in output, false);
+    }
+    const value = methodFixture.exportRequest as Request;
+    const exported = {
+      schemaVersion: value.schemaVersion,
+      requestId: value.requestId,
+      ok: true,
+      data: methodFixture.exportData,
+    };
+    await assertOwnerPair(value, exported);
+    assert.equal((await invoke(value, answer(exported))).ok, true);
+    const output = await invoke(
+      { ...value, expectedReviewStateHash: 'f'.repeat(64) },
+      answer(exported),
+    );
+    assert.equal(output.code, 'STUDY_INVALID_RESPONSE');
+    assert.equal(output.outcome, 'unknown');
+    assert.equal('response' in output, false);
+  });
+
+  it('uses owner async identities for exact evidence receipt bytes and rejects an inconsistent method config before dispatch', async () => {
+    const value = methodFixture.evidenceRequest as Request;
+    const response = {
+      schemaVersion: value.schemaVersion,
+      requestId: value.requestId,
+      ok: true,
+      data: methodFixture.evidenceData,
+    };
+    assert.equal((await invoke(value, answer(response))).ok, true);
+    for (const patch of [
+      { contentHash: 'f'.repeat(64) },
+      { byteSize: methodFixture.evidenceData.value.artifactRef.byteSize + 1 },
+    ]) {
+      const bad = structuredClone(response);
+      Object.assign(bad.data.value.artifactRef, patch);
+      const output = await invoke(value, answer(bad));
+      assert.equal(output.code, 'STUDY_INVALID_RESPONSE');
+      assert.equal(output.outcome, 'unknown');
+      assert.equal('response' in output, false);
+    }
+    let calls = 0;
+    const invalid = { ...methodFixture.assessmentRequest, configHash: 'f'.repeat(64) } as Request;
+    const rejected = await invoke(invalid, async () => {
+      calls++;
+      throw new Error('must not dispatch');
+    });
+    assert.equal(rejected.code, 'STUDY_INVALID_REQUEST');
+    assert.equal(rejected.outcome, 'not_dispatched');
+    assert.equal(calls, 0);
+  });
+
+  it('rejects malformed Unicode in V6 report authoring through owner validation before any dispatch', async () => {
+    const codec = await loadStudyCodec('lca.study-api.v6');
+    const create = methodFixture.reportCreateRequest as Request;
+    const save = {
+      ...request(6),
+      operation: 'report.save',
+      idempotencyKey: 'save-unicode',
+      target: {
+        type: 'reportRevision',
+        id: methodFixture.reportData.value.reportRevisionId,
+        expectedRevision: 2,
+      },
+      content: structuredClone(methodFixture.reportCreateRequest.content),
+    } as Request;
+    let calls = 0;
+    const fetcher: typeof fetch = async () => {
+      calls++;
+      throw new Error('invalid content dispatched');
+    };
+    for (const original of [create, save]) {
+      codec.parseRequest(original);
+      const positive = structuredClone(original);
+      const content = positive.content as typeof methodFixture.reportCreateRequest.content;
+      content.title = '🌏'.repeat(256);
+      codec.parseRequest(positive);
+      for (const value of ['\ud800', '\udfff']) {
+        for (const field of ['title', 'paragraph', 'unit']) {
+          const invalid = structuredClone(original);
+          const c = invalid.content as typeof methodFixture.reportCreateRequest.content;
+          if (field === 'title') c.title = value;
+          else if (field === 'paragraph') c.sections[0].paragraphs[0] = value;
+          else c.claims[0].unit = value;
+          const result = await invoke(invalid, fetcher);
+          assert.equal(result.code, 'STUDY_INVALID_REQUEST');
+          assert.equal(result.outcome, 'not_dispatched');
+        }
+      }
+    }
+    assert.equal(calls, 0);
+  });
+
+  it('keeps an uncertain V6 method mutation bound to its exact family and original request across denial', async () => {
+    const value = methodFixture.assessmentRequest as Request;
+    const first = await invoke(value, async () => {
+      throw new Error('lost response after possible commit');
+    });
+    assert.equal(first.outcome, 'unknown');
+    const recovery = first.recovery as Output;
+    assert.equal(recovery.schemaVersion, 'lca.study-api.v6');
+    const prior = { priorUncertainRequestSha256: String(recovery.requestSha256) };
+    const denied = await invoke(value, answer(denial(value), 403), prior);
+    assert.equal(denied.outcome, 'unknown');
+    assert.deepEqual(denied.recovery, recovery);
+    assert.equal(JSON.stringify(denied).includes('sentinel-secret'), false);
+    let changedCalls = 0;
+    const changed = await invoke(
+      { ...value, idempotencyKey: 'new-key' },
+      async () => {
+        changedCalls++;
+        throw new Error('must not dispatch');
+      },
+      prior,
+    );
+    assert.equal(changed.code, 'STUDY_RECOVERY_REQUEST_MISMATCH');
+    assert.equal(changed.outcome, 'unknown');
+    assert.equal(changedCalls, 0);
+    const success = {
+      schemaVersion: value.schemaVersion,
+      requestId: value.requestId,
+      ok: true,
+      data: methodFixture.assessmentData,
+    };
+    const replay = await invoke(value, answer(success), prior);
+    assert.equal(replay.outcome, 'confirmed');
+    assert.deepEqual(replay.response, success);
+  });
+
+  it('verifies exact opaque V6 method-facts bytes at the original 4MiB transport bound', async () => {
+    const fixture = artifact(STUDY_ARTIFACT_MAX_BYTES, 'methodAssessmentFacts');
+    fixture.request.schemaVersion = 'lca.study-api.v6';
+    fixture.request.studyId = methodFixture.assessmentRequest.studyId;
+    fixture.response.schemaVersion = 'lca.study-api.v6';
+    fixture.response.data.studyId = methodFixture.assessmentRequest.studyId;
+    fixture.response.data.artifactRef.id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    fixture.response.data.artifactRef.schemaVersion = 'lca.study-method-assessment-facts.v1';
+    await assertOwnerPair(fixture.request, fixture.response);
+    assert.equal((await invoke(fixture.request, answer(fixture.response))).ok, true);
+    const substituted = structuredClone(fixture.response);
+    substituted.data.bytes = Buffer.alloc(STUDY_ARTIFACT_MAX_BYTES, 98).toString('base64');
+    const rejected = await invoke(fixture.request, answer(substituted));
+    assert.equal(rejected.code, 'STUDY_ARTIFACT_INTEGRITY');
+    assert.equal('response' in rejected, false);
+  });
 
   it('exposes real SDK input validation and structured error output without dispatch', async () => {
     const server = new McpServer({ name: 'study-protocol-test', version: '1' });
@@ -469,7 +741,7 @@ describe('Study owner protocol adapter', () => {
     );
   });
 
-  for (const version of [4, 5] as const) {
+  for (const version of [4, 5, 6] as const) {
     it(`binds V${version} named-share download to an independently selected bundle hash and size`, async () => {
       const bytes = Buffer.from('Opaque transport fixture; no signature qualification claimed.');
       const ref = (type: string, schemaVersion: string) => ({

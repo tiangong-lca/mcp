@@ -21,9 +21,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-11-04
-lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
-lastReviewedNote: 'MCP #104: reviewed explicit V2-V5 Study consumer, actor forwarding, exact owner artifacts, bounded downloads and same-key recovery. Installed runtime, hosted CI, Main and root qualification remain separately required.'
+lastReviewedAt: 2026-11-05
+lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
+lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -187,3 +187,5 @@ docker run -d -p 9278:9278 --env-file .env "${image_uri}:${image_tag}"
 ## Study API 适配层
 
 `Study_API_Tool` 的协议选择、精确产物、授权、下载完整性和显式恢复要求见 [Study 消费契约](docs/agents/study-api-contract.md)。认证 HTTP 转发已验证的同一 actor token。网络结果不明确时保留原请求与幂等键，只能显式重试相同请求；后续权限拒绝不会证明先前操作未生效。原始来源包不进入模型工具输出。STDIO 工厂注册不增加凭证来源；本机未认证 HTTP 不注册 Study。实际安装链路、托管 CI、Main 与 workspace 集成需要独立证据，源码测试不代表发布或生产启用。
+
+方法证据、评估及方法报告显式选择 V6，先读取 `tiangong-study://schema/v6/request` 和同族 capabilities；schema 存在不授予运行权限。方法证据保持 recorded-unverified，缺少的类别结果保留不可用原因。新 V6 源码与实际执行资格由 MCP #107 跟踪。
