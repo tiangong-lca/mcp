@@ -22,9 +22,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-11-04
-lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
-lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
+lastReviewedAt: 2026-11-05
+lastReviewedCommit: 54f68bdc65d50a3b6225fafc695912c8ee35e159
+lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
@@ -194,4 +194,6 @@ That build first runs `apk upgrade --no-cache`. Read back the installed OpenSSL 
 
 ## Study API adapter
 
-See [the Study contract](docs/agents/study-api-contract.md). On authenticated HTTP, call `Study_API_Tool` with an exact public `request` carrying an explicit `lca.study-api.v2` through `.v5` schema. Keep the original mutation request/key; ambiguous results return a transport digest for explicit identical-request recovery. Download selection requires the exact bundle hash/size from a prior authorized read. Raw source packet bytes are unsupported. STDIO registration adds no token source, so the shipped tokenless executable rejects Study calls before network access. No deployment, package publication or P5 activation follows from source delivery.
+See [the Study contract](docs/agents/study-api-contract.md). On authenticated HTTP, call `Study_API_Tool` with an exact public `request` carrying an explicit `lca.study-api.v2` through `.v6` schema. Keep the original mutation request/key; ambiguous results return a transport digest for explicit identical-request recovery. Download selection requires the exact bundle hash/size from a prior authorized read. Raw source packet bytes are unsupported. STDIO registration adds no token source, so the shipped tokenless executable rejects Study calls before network access. No deployment, package publication or P5 activation follows from source delivery.
+
+Select V6 explicitly for method evidence/assessment and method reports. Read `tiangong-study://schema/v6/request` and same-family capabilities; never treat schema presence as runtime admission. Method evidence is recorded-unverified, and unavailable category results remain unavailable. V6 source and actual execution qualification are tracked in MCP #107.

@@ -43,9 +43,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-11-04
-lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
-lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
+lastReviewedAt: 2026-11-05
+lastReviewedCommit: 54f68bdc65d50a3b6225fafc695912c8ee35e159
+lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
 related:
   - .docpact/config.yaml
   - docs/agents/repo-validation.md
@@ -108,7 +108,7 @@ Route those tasks to:
 
 ## Study API consumer
 
-`Study_API_Tool` is a thin actor-authenticated V2/V3/V4/V5 Edge consumer. Read [its contract](docs/agents/study-api-contract.md) for exact owner assets, bounded inline downloads, explicit same-key recovery and source packet refusal. HTTP forwards the verified actor token; STDIO registration adds no credential mechanism and tokenless calls fail. Local HTTP remains local-only. Current hosted/runtime qualification and release state must be read from MCP #104.
+`Study_API_Tool` is a thin actor-authenticated V2/V3/V4/V5/V6 Edge consumer. Read [its contract](docs/agents/study-api-contract.md) for exact owner assets, bounded inline downloads, explicit same-key recovery and source packet refusal. HTTP forwards the verified actor token; STDIO registration adds no credential mechanism and tokenless calls fail. Local HTTP remains local-only. Current hosted/runtime qualification and release state must be read from MCP #104.
 
 ## Runtime Facts
 

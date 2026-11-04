@@ -246,7 +246,7 @@ try {
   const { callStudy } = await import(
     pathToFileURL(join(packageRoot, 'dist', 'src', 'tools', 'study.js')).href
   );
-  for (const version of ['v2', 'v3', 'v4', 'v5']) {
+  for (const version of ['v2', 'v3', 'v4', 'v5', 'v6']) {
     const schemaVersion = `lca.study-api.${version}`;
     const codec = await loadStudyCodec(schemaVersion);
     const request = { schemaVersion, requestId: 'packed-request', operation: 'capability.read' };
@@ -256,31 +256,38 @@ try {
     const denied = await callStudy({ request }, undefined, new AbortController().signal);
     assert.equal(denied.code, 'STUDY_AUTH_REQUIRED');
   }
-  const packedSchema = join(
-    packageRoot,
-    'dist',
-    'src',
-    '_shared',
-    'study_contract',
-    'v2',
-    'request.schema.json',
-  );
-  const originalSchema = readFileSync(packedSchema);
-  const ownedRelative = relative(realpathSync(temporaryRoot), realpathSync(packedSchema));
-  assert.ok(ownedRelative && !ownedRelative.startsWith('..') && !isAbsolute(ownedRelative));
-  let isolatedSchema = false;
-  try {
-    // Detect a changed auxiliary schema even after the codec was previously loaded.
-    // Break this installed file's possible pnpm store hardlink before changing bytes.
-    rmSync(packedSchema);
-    isolatedSchema = true;
-    writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]), { flag: 'wx' });
-    await assert.rejects(loadStudyCodec('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
-    assert.throws(() => readStudyRequestSchema('lca.study-api.v2'), /STUDY_CONTRACT_INTEGRITY/u);
-  } finally {
-    if (isolatedSchema) writeFileSync(packedSchema, originalSchema);
+  for (const version of ['v2', 'v6']) {
+    const packedSchema = join(
+      packageRoot,
+      'dist',
+      'src',
+      '_shared',
+      'study_contract',
+      version,
+      'request.schema.json',
+    );
+    const originalSchema = readFileSync(packedSchema);
+    const ownedRelative = relative(realpathSync(temporaryRoot), realpathSync(packedSchema));
+    assert.ok(ownedRelative && !ownedRelative.startsWith('..') && !isAbsolute(ownedRelative));
+    let isolatedSchema = false;
+    try {
+      // Detect a changed auxiliary schema even after the codec was previously loaded.
+      // Break this installed file's possible pnpm store hardlink before changing bytes.
+      rmSync(packedSchema);
+      isolatedSchema = true;
+      writeFileSync(packedSchema, Buffer.concat([originalSchema, Buffer.from(' ')]), {
+        flag: 'wx',
+      });
+      await assert.rejects(loadStudyCodec(`lca.study-api.${version}`), /STUDY_CONTRACT_INTEGRITY/u);
+      assert.throws(
+        () => readStudyRequestSchema(`lca.study-api.${version}`),
+        /STUDY_CONTRACT_INTEGRITY/u,
+      );
+    } finally {
+      if (isolatedSchema) writeFileSync(packedSchema, originalSchema);
+    }
+    await loadStudyCodec(`lca.study-api.${version}`);
   }
-  await loadStudyCodec('lca.study-api.v2');
   // Exercise the installed runtime through the actual SDK protocol, without a sibling import.
   const packageRequire = createRequire(join(realpathSync(packageRoot), 'package.json'));
   const { Client } = await import(
@@ -309,8 +316,8 @@ try {
       packedClient.connect(clientTransport),
     ]);
     assert.equal((await packedClient.listTools()).tools[0].name, 'Study_API_Tool');
-    assert.equal((await packedClient.listResources()).resources.length, 5);
-    for (const version of ['v2', 'v3', 'v4', 'v5']) {
+    assert.equal((await packedClient.listResources()).resources.length, 6);
+    for (const version of ['v2', 'v3', 'v4', 'v5', 'v6']) {
       const uri = `tiangong-study://schema/${version}/request`;
       const result = await packedClient.readResource({ uri });
       assert.equal(result.contents[0].text, readStudyRequestSchema(`lca.study-api.${version}`));
@@ -318,18 +325,20 @@ try {
     await assert.rejects(
       packedClient.readResource({ uri: 'tiangong-study://schema/v999/request' }),
     );
-    const denied = await packedClient.callTool({
-      name: 'Study_API_Tool',
-      arguments: {
-        request: {
-          schemaVersion: 'lca.study-api.v5',
-          requestId: 'installed-request',
-          operation: 'capability.read',
+    for (const version of ['v2', 'v3', 'v4', 'v5', 'v6']) {
+      const denied = await packedClient.callTool({
+        name: 'Study_API_Tool',
+        arguments: {
+          request: {
+            schemaVersion: `lca.study-api.${version}`,
+            requestId: 'installed-request',
+            operation: 'capability.read',
+          },
         },
-      },
-    });
-    assert.equal(denied.isError, true);
-    assert.equal(denied.structuredContent.code, 'STUDY_AUTH_REQUIRED');
+      });
+      assert.equal(denied.isError, true);
+      assert.equal(denied.structuredContent.code, 'STUDY_AUTH_REQUIRED');
+    }
   } finally {
     await packedClient.close();
     await packedServer.close();

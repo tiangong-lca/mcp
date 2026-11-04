@@ -1,0 +1,242 @@
+{
+  "classification": "Synthetic public transport fixtures from exact Edge source; not live actor, Storage, native execution or scientific qualification.",
+  "source": {
+    "repository": "tiangong-lca/edge-functions",
+    "commit": "3a1996fa19554d11903c9afecd974df65a8c2def",
+    "path": "test/fixtures/lca-study-v6/database-report-contexts.json",
+    "sha256": "3579d25269976382176ef9ee37f6768736f5f6a94c4694590ff6066f753a0e48"
+  },
+  "assessmentRequest": {
+    "config": {
+      "moduleRef": {
+        "moduleId": "method.pef-2021-ef31",
+        "repository": "tiangong-lca/pcr",
+        "sourceCommit": "51c0842c67b14ba886e2edee2846e26eefac030f",
+        "moduleVersion": "0.1.0",
+        "artifactSha256": "b19ba5754b0bc20c44c8c65966bafafd5984cd74636f2c805c0fa4373f5554ad",
+        "reviewBasisSha256": "989391423c7f31bdf77e18ea4438fab1a27ff6708c0f44ecad8ab8813763a165",
+        "sourceBindingsSha256": "3fd9b1dc68228db3e146b6d23daac853b27b9f504f9445a0cc5a971d53257ce2"
+      },
+      "declarations": {
+        "studyPhase": "finalStudy",
+        "productRole": "finishedCementIntermediate",
+        "categoryRule": {
+          "kind": "noneEstablished"
+        },
+        "referenceUnitBasis": "declaredMass"
+      },
+      "evidenceRefs": [],
+      "baselineRunId": "90400000-0000-4000-8000-000000000012",
+      "schemaVersion": "lca.study-method-assessment-config.v1"
+    },
+    "studyId": "89400000-0000-4000-8000-000000000010",
+    "operation": "method.assessment.request",
+    "profileId": "lca.study-method-pef-2021-ef31-cement-intermediate.v1",
+    "requestId": "method",
+    "configHash": "a9211343b7ff84319563d96264792d45d086e563e76261886fa721b7c2457755",
+    "schemaVersion": "lca.study-api.v6",
+    "idempotencyKey": "method"
+  },
+  "assessmentData": {
+    "type": "methodAssessment",
+    "value": {
+      "config": {
+        "moduleRef": {
+          "moduleId": "method.pef-2021-ef31",
+          "repository": "tiangong-lca/pcr",
+          "sourceCommit": "51c0842c67b14ba886e2edee2846e26eefac030f",
+          "moduleVersion": "0.1.0",
+          "artifactSha256": "b19ba5754b0bc20c44c8c65966bafafd5984cd74636f2c805c0fa4373f5554ad",
+          "reviewBasisSha256": "989391423c7f31bdf77e18ea4438fab1a27ff6708c0f44ecad8ab8813763a165",
+          "sourceBindingsSha256": "3fd9b1dc68228db3e146b6d23daac853b27b9f504f9445a0cc5a971d53257ce2"
+        },
+        "declarations": {
+          "studyPhase": "finalStudy",
+          "productRole": "finishedCementIntermediate",
+          "categoryRule": {
+            "kind": "noneEstablished"
+          },
+          "referenceUnitBasis": "declaredMass"
+        },
+        "evidenceRefs": [],
+        "baselineRunId": "90400000-0000-4000-8000-000000000012",
+        "schemaVersion": "lca.study-method-assessment-config.v1"
+      },
+      "studyId": "89400000-0000-4000-8000-000000000010",
+      "factsRef": {
+        "id": "91200000-0000-4000-8000-000000000060",
+        "type": "methodAssessmentFacts",
+        "byteSize": 2,
+        "mediaType": "application/json",
+        "contentHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-method-assessment-facts.v1"
+      },
+      "execution": {
+        "jobId": "1280545b-ff8e-4b9f-96b3-8ae6f4a1e773",
+        "status": "completed"
+      },
+      "profileId": "lca.study-method-pef-2021-ef31-cement-intermediate.v1",
+      "configHash": "a9211343b7ff84319563d96264792d45d086e563e76261886fa721b7c2457755",
+      "assessmentId": "1bbeb001-bfe0-4c1a-b537-43bbe053b763"
+    }
+  },
+  "evidenceRequest": {
+    "content": {
+      "title": "Recorded declaration only",
+      "citations": [
+        {
+          "kind": "normativeSource",
+          "locator": "Section 3",
+          "version": "2022 corrigendum",
+          "identity": "Commission Recommendation 2021/2279 Annex I",
+          "contentHash": null
+        }
+      ],
+      "statement": "This fixture is not professional approval or method conformity.",
+      "declaredKind": "professionalRecord",
+      "requirementId": "PEF-01",
+      "schemaVersion": "lca.study-method-evidence.v1"
+    },
+    "studyId": "89400000-0000-4000-8000-000000000010",
+    "operation": "method.evidence.create",
+    "requestId": "evidence-create",
+    "schemaVersion": "lca.study-api.v6",
+    "idempotencyKey": "evidence-create"
+  },
+  "evidenceData": {
+    "type": "methodEvidence",
+    "value": {
+      "status": "recorded_unverified",
+      "studyId": "89400000-0000-4000-8000-000000000010",
+      "evidenceId": "91793259-b608-4f00-b5c8-3cb7591f4642",
+      "recordedAt": "2026-11-04T12:39:06.787307+00:00",
+      "artifactRef": {
+        "id": "47f702f0-d383-4a1a-a6b6-5e3f884a30b8",
+        "type": "methodEvidence",
+        "byteSize": 391,
+        "mediaType": "application/json",
+        "contentHash": "42a48b7b55155d80723b67979474fbbeadf1748fd49acd2d0f15e859a5961af8",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-method-evidence.v1"
+      },
+      "declaredKind": "professionalRecord",
+      "requirementId": "PEF-01",
+      "schemaVersion": "lca.study-method-evidence-record.v1"
+    }
+  },
+  "reportData": {
+    "type": "reportRevision",
+    "value": {
+      "runIds": ["90400000-0000-4000-8000-000000000012"],
+      "status": "frozen",
+      "studyId": "89400000-0000-4000-8000-000000000010",
+      "authorId": "89400000-0000-4000-8000-000000000001",
+      "revision": 2,
+      "factsRefs": [
+        {
+          "id": "91200000-0000-4000-8000-000000000060",
+          "type": "methodAssessmentFacts",
+          "byteSize": 2,
+          "mediaType": "application/json",
+          "contentHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "digestScope": "artifact_bytes_sha256",
+          "schemaVersion": "lca.study-method-assessment-facts.v1"
+        }
+      ],
+      "contentRef": {
+        "id": "1e7a0a69-0e54-4107-b74d-b73a35630823",
+        "type": "reportContent",
+        "byteSize": 2,
+        "mediaType": "application/json",
+        "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-method-report-content.v1"
+      },
+      "templateId": "lca.study-method-report.v1",
+      "contentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "finalization": {
+        "status": "not_finalized",
+        "profileId": "lca.study-report-unreviewed.v1",
+        "reviewIds": [],
+        "finalizedAt": null,
+        "reviewRequirement": "none"
+      },
+      "reportRevisionId": "6070d9c3-0a8c-43e5-a60a-3e8a8e9c6d7e",
+      "validitySnapshot": {
+        "status": "current",
+        "checkedAt": "2026-11-04T12:39:06.759822+00:00",
+        "reasonCodes": []
+      },
+      "methodAssessmentIds": ["1bbeb001-bfe0-4c1a-b537-43bbe053b763"],
+      "parentReportRevisionId": null
+    }
+  },
+  "exportRequest": {
+    "operation": "export.request",
+    "requestId": "method-export",
+    "schemaVersion": "lca.study-api.v6",
+    "finalizationId": "9a67c015-e542-4816-b2b1-daeef7c7d265",
+    "idempotencyKey": "method-export",
+    "rendererVersion": "3.0.0",
+    "reportRevisionId": "6070d9c3-0a8c-43e5-a60a-3e8a8e9c6d7e",
+    "viewModelVersion": "lca.study-report-view.v3",
+    "expectedContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "expectedReviewStateHash": "250c5ee97688c67f27dbd7bb813f253eb6c9d6305cf7a6a4f8f30d2e4b2e285e"
+  },
+  "exportData": {
+    "type": "export",
+    "value": {
+      "receipt": {
+        "keyId": "study912-sql-key",
+        "algorithm": "Ed25519",
+        "signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "manifestHash": "239aa174709a010eeb63f007b20142b90e14da40ca677e8ad21f7606f4b2e2c1",
+        "schemaVersion": "lca.study-export-receipt.v2"
+      },
+      "studyId": "89400000-0000-4000-8000-000000000010",
+      "exportId": "6caefcff-672f-4f75-8ffb-5af105978544",
+      "bundleRef": {
+        "id": "d57386e8-3aa8-4905-bd94-130f51870845",
+        "type": "reportExportBundle",
+        "byteSize": 2,
+        "mediaType": "application/json",
+        "contentHash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-export-bundle.v4"
+      },
+      "generatedAt": "2026-11-04T12:39:06.970003+00:00",
+      "finalization": {
+        "actorId": "89400000-0000-4000-8000-000000000001",
+        "studyId": "89400000-0000-4000-8000-000000000010",
+        "profileId": "lca.study-report-internal-review.v1",
+        "finalizedAt": "2026-11-04T12:39:06.96165+00:00",
+        "finalizationId": "9a67c015-e542-4816-b2b1-daeef7c7d265",
+        "reportRevisionId": "6070d9c3-0a8c-43e5-a60a-3e8a8e9c6d7e",
+        "acceptedReviewIds": ["e00e6d2a-0cee-4bea-a67d-9b511910813a"],
+        "reportContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "expectedReviewStateHash": "250c5ee97688c67f27dbd7bb813f253eb6c9d6305cf7a6a4f8f30d2e4b2e285e"
+      },
+      "resourcesRef": {
+        "id": "63a260af-8c42-4d28-a517-f2ce47b4b1b9",
+        "type": "renderResources",
+        "byteSize": 1759,
+        "mediaType": "application/json",
+        "contentHash": "e8d6bab79b0b156da7702373ad9ef2bb9908be8556c431338ce28cc3bf081e0c",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-export-manifest.v4"
+      },
+      "projectionRef": {
+        "id": "7b3a7d9e-bee5-4978-8fab-0a96546eefc3",
+        "type": "reportProjection",
+        "byteSize": 2,
+        "mediaType": "application/json",
+        "contentHash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "digestScope": "artifact_bytes_sha256",
+        "schemaVersion": "lca.study-report-view.v3"
+      },
+      "reportRevisionId": "6070d9c3-0a8c-43e5-a60a-3e8a8e9c6d7e",
+      "reportContentHash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  }
+}
