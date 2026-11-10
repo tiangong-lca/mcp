@@ -33,6 +33,8 @@ related:
 
 `Study_API_Tool` forwards one explicit public Study request to the configured `/functions/v1/app_lca_study` endpoint. Edge owns the full domain schemas and response/resource binding rules. Database and Worker retain persistence, actor/client/source authorization, task and numerical authority. MCP performs no calculation, domain hash generation, engine fallback, source acquisition, direct RPC/table write or CLI invocation.
 
+The display title and resources lead with LCA calculation. The tool name, resource names and URIs remain the stable Study identifiers; the display wording does not change owner schema bytes or current admission.
+
 Authenticated HTTP registers the tool with the same already-verified request-scoped actor bearer. The same factory registration exists on STDIO; the shipped STDIO executable supplies no actor credential and Study calls therefore fail with `STUDY_AUTH_REQUIRED`. This change adds no STDIO login/token environment mechanism. Local unauthenticated HTTP retains its local-only tools and does not register Study. Missing credentials fail before remote I/O. Tool arguments, results and logs contain no transport credentials; all provider errors are reduced to stable codes. Successful authorized user content remains exact public domain data.
 
 `SUPABASE_BASE_URL` and `SUPABASE_PUBLISHABLE_KEY` remain explicit lazy backend configuration. Study allows HTTPS, or HTTP on an exact loopback hostname for owned development. Userinfo, query/fragment (including empty delimiters), redirects and arbitrary operation URLs are rejected. The tool input cannot select an endpoint. The server reauthorizes every call, including same-key retries; MCP registration and capability discovery confer no permission.

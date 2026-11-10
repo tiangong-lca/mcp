@@ -177,6 +177,9 @@ describe('Study owner protocol adapter', () => {
         if (!hasStudy) continue;
         for (const version of ['v2', 'v3', 'v4', 'v5', 'v6']) {
           const uri = `tiangong-study://schema/${version}/request`;
+          const resource = schemas.find((item) => item.uri === uri);
+          assert.equal(resource?.name, `Study_Request_Schema_${version}`);
+          assert.match(resource?.title ?? '', /^LCA calculation:/u);
           const result = await connection.client.readResource({ uri });
           assert.equal(result.contents.length, 1);
           const content = result.contents[0];
@@ -193,9 +196,11 @@ describe('Study owner protocol adapter', () => {
           assert.equal(sha(content.text), sha(original));
           assert.equal(JSON.parse(content.text).$schema, 'http://json-schema.org/draft-07/schema#');
         }
-        const contract = await connection.client.readResource({
-          uri: 'tiangong-study://consumer/contract',
-        });
+        const contractUri = 'tiangong-study://consumer/contract';
+        const contractResource = resources.resources.find((item) => item.uri === contractUri);
+        assert.equal(contractResource?.name, 'Study_Consumer_Contract');
+        assert.match(contractResource?.title ?? '', /^LCA calculation:/u);
+        const contract = await connection.client.readResource({ uri: contractUri });
         assert.ok('text' in contract.contents[0]);
         assert.match(contract.contents[0].text, /priorUncertainRequestSha256/u);
         assert.match(contract.contents[0].text, /4MiB/u);
@@ -503,6 +508,7 @@ describe('Study owner protocol adapter', () => {
       const tools = await connection.client.listTools();
       const tool = tools.tools.find((item) => item.name === 'Study_API_Tool');
       assert.ok(tool);
+      assert.equal(tool.title, 'LCA Calculation');
       assert.equal(tool.annotations?.readOnlyHint, false);
       assert.equal(tool.annotations?.destructiveHint, true);
       for (const args of [

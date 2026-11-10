@@ -110,6 +110,8 @@ pnpm start:server-local
 
 HTTP 启动命令通过跨平台 Node argv wrapper 启动 MCP Inspector，并在 wrapper 内注入仅用于开发的 Inspector 环境，不依赖 POSIX shell 语法。
 
-## LCA Study 工作流
+## LCA 计算
 
-当前源码在认证 HTTP 中提供 `Study_API_Tool`，显式选择公开的 V2–V5 请求，覆盖模型与运行、分析、报告、审阅和指定接收者分享。服务转发已准入的 OAuth 身份，每次调用均重新授权。请保存原始变更请求及幂等键，以便显式恢复不明确的结果；工具不输出原始来源包。下载完整性、资格边界和当前限制见 [Study 消费契约](docs/agents/study-api-contract.md)。已有发布包需要经过单独审核发布后才会包含这些源码变更。
+通过认证 HTTP 使用 `Study_API_Tool`，显式选择 V2 请求，创建计算项目、准备模型、提交计算并读取结果。请先读取所选协议版本的请求 schema，再调用 `capability.read` 查询当前服务和 OAuth 身份允许的操作。
+
+源码还支持 V3–V6，用于可选的分析、报告、审阅、分享和方法评估。V5 和 V6 需要独立准入，默认关闭。服务会重新授权每次调用。请保留原始变更请求和幂等键以便恢复；工具不披露原始来源包。下载完整性和资格边界见 [Study 消费契约](docs/agents/study-api-contract.md)。源码支持、软件包发布和托管启用是独立状态。
