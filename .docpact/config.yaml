@@ -1,8 +1,8 @@
 version: 1
 layout: repo
-lastReviewedAt: "2026-11-05"
-lastReviewedCommit: "dfd82230833c04a82c96a09bdfad642173af87b5"
-lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
+lastReviewedAt: "2026-11-10"
+lastReviewedCommit: "3478b011958c2a15efc088049550cb212a00214c"
+lastReviewedNote: 'MCP #109: reviewed calculation discovery and explicit V2–V6 guidance. Stable tool/resource identifiers, exact owner schema bytes, authorization, packaging and hosted admission are unchanged.'
 
 catalog:
   repos:
