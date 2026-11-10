@@ -33,9 +33,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-11-05
-lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
-lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
+lastReviewedAt: 2026-11-10
+lastReviewedCommit: 3478b011958c2a15efc088049550cb212a00214c
+lastReviewedNote: 'MCP #109: reviewed calculation discovery and explicit V2–V6 guidance. Stable tool/resource identifiers, exact owner schema bytes, authorization, packaging and hosted admission are unchanged.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
@@ -151,6 +151,6 @@ This repository has a versioned local `pre-push` hook under `.githooks/pre-push`
 
 ## Study workflow adapter
 
-`src/tools/study.ts` exposes the public Study workflow with explicit V2–V5 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 512 KiB authenticated MCP envelopes/256 KiB inner requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.
+`src/tools/study.ts` exposes LCA calculation through the stable Study tool with explicit V2–V6 selection and verified contained Edge codecs. `src/_shared/study_codec.ts` checks producer manifests/files before evaluation. Authenticated request-scoped factories forward the same verified bearer. See [the Study contract](study-api-contract.md) for mutation uncertainty, exact download selectors, 512 KiB authenticated MCP envelopes/256 KiB inner requests/6 MiB response envelopes/4 MiB decoded artifacts, 25-second deadline and raw source packet refusal. The adapter adds no stateful OAuth, direct database/CLI path, numerical calculation or production enablement.
 
-`src/resources/study.ts` exposes the four exact integrity-checked owner request schemas and a concise consumer contract on the same actor-capable surfaces. MCP clients can inspect operation fields before calling the generic Study tool; public static schemas confer no data permission. Existing OpenLCA resources and the local-only HTTP resource surface are preserved.
+`src/resources/study.ts` exposes the five exact integrity-checked owner request schemas and a concise consumer contract on the same actor-capable surfaces. MCP clients can inspect operation fields before calling the generic Study tool; public static schemas confer no data permission. Existing OpenLCA resources and the local-only HTTP resource surface are preserved.

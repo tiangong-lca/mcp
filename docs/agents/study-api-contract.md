@@ -20,9 +20,9 @@ checkPaths:
   - test/study.test.ts
   - scripts/build.mjs
   - scripts/test-packed-consumer.mjs
-lastReviewedAt: 2026-11-05
-lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
-lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
+lastReviewedAt: 2026-11-10
+lastReviewedCommit: 3478b011958c2a15efc088049550cb212a00214c
+lastReviewedNote: 'MCP #109: reviewed calculation discovery and explicit V2–V6 guidance. Stable tool/resource identifiers, exact owner schema bytes, authorization, packaging and hosted admission are unchanged.'
 related:
   - ../../AGENTS.md
   - ./repo-architecture.md
@@ -32,6 +32,8 @@ related:
 ## Ownership and registration
 
 `Study_API_Tool` forwards one explicit public Study request to the configured `/functions/v1/app_lca_study` endpoint. Edge owns the full domain schemas and response/resource binding rules. Database and Worker retain persistence, actor/client/source authorization, task and numerical authority. MCP performs no calculation, domain hash generation, engine fallback, source acquisition, direct RPC/table write or CLI invocation.
+
+The display title and resources lead with LCA calculation. The tool name, resource names and URIs remain the stable Study identifiers; the display wording does not change owner schema bytes or current admission.
 
 Authenticated HTTP registers the tool with the same already-verified request-scoped actor bearer. The same factory registration exists on STDIO; the shipped STDIO executable supplies no actor credential and Study calls therefore fail with `STUDY_AUTH_REQUIRED`. This change adds no STDIO login/token environment mechanism. Local unauthenticated HTTP retains its local-only tools and does not register Study. Missing credentials fail before remote I/O. Tool arguments, results and logs contain no transport credentials; all provider errors are reduced to stable codes. Successful authorized user content remains exact public domain data.
 

@@ -296,9 +296,9 @@ export function regStudyTool(server: McpServer, bearer?: string): void {
   server.registerTool(
     'Study_API_Tool',
     {
-      title: 'LCA Study API',
+      title: 'LCA Calculation',
       description:
-        'Execute one explicit Edge Study V2/V3/V4/V5/V6 request. First read tiangong-study://schema/v2/request (or v3/v4/v5/v6) and tiangong-study://consumer/contract; then call capability.read in the selected family. Covers Study/Scenario/model preparation, run/task, analyses, method evidence/assessment, report authoring, review/finalization and named sharing/export. May mutate data. Exact owner codecs validate all fields; discovery is not authorization. V5/V6 remain independently configured/default-off. Method evidence is recorded-unverified; unavailable results and coverage gaps are not scientific approval. No automatic retry, version fallback, key generation or raw source packet bytes. Retain the original request for explicit same-key recovery; requestSha256 is a transport receipt, never a domain/config identity.',
+        'Use V2 to create an LCA calculation project, prepare a model, submit a run, and check results. Each call forwards one explicit Edge Study V2/V3/V4/V5/V6 request. First read tiangong-study://schema/v2/request (or v3/v4/v5/v6) and tiangong-study://consumer/contract; then call capability.read in the selected family. Optional analysis, method assessment, reports, review and sharing use the separately admitted V3–V6 families. May mutate data. Exact owner codecs validate all fields; discovery is not authorization. V5/V6 remain independently configured/default-off. Method evidence is recorded-unverified; unavailable results and coverage gaps are not scientific approval. No automatic retry, version fallback, key generation or raw source packet bytes. Retain the original request for explicit same-key recovery; requestSha256 is a transport receipt, never a domain/config identity.',
       inputSchema,
       annotations: {
         readOnlyHint: false,

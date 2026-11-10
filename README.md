@@ -110,6 +110,8 @@ pnpm start:server-local
 
 The HTTP start commands launch MCP Inspector through a cross-platform Node argv wrapper and inject the development-only Inspector environment without POSIX shell syntax.
 
-## LCA Study workflow
+## LCA calculation
 
-The checkout includes `Study_API_Tool` on authenticated HTTP with explicit public Study V2–V5 requests for model/run, analysis, report, review and named sharing workflows. The server forwards your admitted OAuth context and reauthorizes every call. Retain the original mutation request and key for explicit recovery; raw source packet bytes are not exposed. Read [the Study consumer contract](docs/agents/study-api-contract.md) for download integrity, qualification and current limitations. Existing published packages need a separately reviewed release to receive this source increment.
+Use `Study_API_Tool` over authenticated HTTP to create a calculation project, prepare a model, submit a run and read its results with an explicit V2 request. Read the selected family’s request schema and call `capability.read` to see what your server and OAuth context allow.
+
+The source also supports V3–V6 for optional analysis, reporting, review, sharing and method assessment. V5 and V6 require separate runtime admission and are off by default. The server reauthorizes every call. Keep the original mutation request and key for recovery; the tool does not disclose raw source packets. The [Study consumer contract](docs/agents/study-api-contract.md) explains download integrity and qualification. Package publication and hosted activation are separate from source support.
