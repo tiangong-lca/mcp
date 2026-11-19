@@ -42,8 +42,8 @@ describe('pnpm and TypeScript 7 toolchain contract', () => {
     assert.equal(packageJson.devDependencies?.['@types/node'], '24.19.2');
     assert.equal(packageJson.devDependencies?.['react-dom'], '19.3.1');
     assert.equal(packageJson.devDependencies?.tsx, '4.23.15');
-    assert.equal(packageJson.devDependencies?.oxlint, '1.80.0');
-    assert.equal(packageJson.devDependencies?.['oxlint-tsgolint'], '7.0.2001');
+    assert.equal(packageJson.devDependencies?.oxlint, '1.93.0');
+    assert.equal(packageJson.devDependencies?.['oxlint-tsgolint'], '7.0.2006');
     assert.equal(packageJson.devDependencies?.['prettier-plugin-organize-imports'], undefined);
 
     const lockfile = readText('pnpm-lock.yaml');
