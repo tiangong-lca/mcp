@@ -22,8 +22,8 @@ checkPaths:
   - test/**
   - scripts/**
 lastReviewedAt: 2026-11-19
-lastReviewedCommit: 591cbf608188c32c35bb438fd2cd21b9fc0e93a3
-lastReviewedNote: 'MCP #112. Reviewed the Chinese maintainer guidance for the qualified development tools, frozen install and existing consumer gates.'
+lastReviewedCommit: 61251e5f4756735908fb54f657ea4a538927b283
+lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
