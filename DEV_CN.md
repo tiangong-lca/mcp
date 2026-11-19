@@ -21,9 +21,9 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-11-05
-lastReviewedCommit: dfd82230833c04a82c96a09bdfad642173af87b5
-lastReviewedNote: 'MCP #107: reviewed exact V6 owner consumption, async receipt/config identity checks, retained historical protocols, installed package integrity and truthful method qualification boundaries. Actual V6 runtime, CI, Main and root delivery remain pending.'
+lastReviewedAt: 2026-11-19
+lastReviewedCommit: 591cbf608188c32c35bb438fd2cd21b9fc0e93a3
+lastReviewedNote: 'MCP #112. Reviewed the Chinese maintainer guidance for the qualified development tools, frozen install and existing consumer gates.'
 related:
   - AGENTS.md
   - .docpact/config.yaml
