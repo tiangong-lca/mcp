@@ -33,9 +33,9 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-11-10
-lastReviewedCommit: 3478b011958c2a15efc088049550cb212a00214c
-lastReviewedNote: 'MCP #109: reviewed calculation discovery and explicit V2–V6 guidance. Stable tool/resource identifiers, exact owner schema bytes, authorization, packaging and hosted admission are unchanged.'
+lastReviewedAt: 2026-11-19
+lastReviewedCommit: 67b9d751621f0b3ee1f9d58eb28324d47842874a
+lastReviewedNote: 'MCP #112. Reviewed the development-only typings, tsx and formatter against the runtime package boundary.'
 related:
   - ../../AGENTS.md
   - ../../.docpact/config.yaml
