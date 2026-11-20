@@ -21,8 +21,8 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-11-19
-lastReviewedCommit: 61251e5f4756735908fb54f657ea4a538927b283
+lastReviewedAt: 2026-11-20
+lastReviewedCommit: 4fb4cf249514d4f70acb0a088bf58e415677619a
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - AGENTS.md
@@ -53,18 +53,18 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 
 ### 使用 Docker
 
-仓库 Dockerfile 安装的是已发布的 `@tiangong-lca/mcp-server@0.2.1`，不会构建当前 checkout。源码变更适用于 checkout 构建；已有 npm 包与镜像需要另行审核发布后才会包含修复。
+仓库 Dockerfile 安装的是已发布的 `@tiangong-lca/mcp-server@0.3.0`，不会构建当前 checkout。源码变更适用于 checkout 构建；已有 npm 包与镜像需要另行审核发布后才会包含修复。
 
 ```bash
 # 使用 Dockerfile 在本地构建 MCP 服务器镜像
-docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
+docker build -t linancn/tiangong-lca-mcp-server:0.3.0 .
 
 # 使用 Docker 启动 MCP 服务器
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.1
+    linancn/tiangong-lca-mcp-server:0.3.0
 ```
 
 ## 开发
@@ -132,7 +132,7 @@ pnpm prepush:gate
 
 ### 发布
 
-本次 direct-OAuth 任务在变更合并后执行发布。Trusted publishing workflow 使用 pnpm frozen lock 安装并运行标准门禁；Tag 继续使用本单包仓库的 `v<package.version>` 格式，本次 `0.2.1` 对应 `v0.2.1`。构建 ECS 镜像前必须读回 registry integrity，并确认发布包包含 OAuth runtime、Supabase JWT verifier 与 HTTP app，且所有已删除的 stateful-auth 模块不存在。同一门禁还必须真实执行全局 HTTP bin 并收到 `/health`；仅 import 证明不足。
+本次 direct-OAuth 任务在变更合并后执行发布。Trusted publishing workflow 使用 pnpm frozen lock 安装并运行标准门禁；Tag 继续使用本单包仓库的 `v<package.version>` 格式，本次 `0.3.0` 对应 `v0.3.0`。构建 ECS 镜像前必须读回 registry integrity，并确认发布包包含 OAuth runtime、Supabase JWT verifier 与 HTTP app，且所有已删除的 stateful-auth 模块不存在。同一门禁还必须真实执行全局 HTTP bin 并收到 `/health`；仅 import 证明不足。
 
 ### 测试脚手架
 
@@ -145,7 +145,7 @@ pnpm exec tsx scripts/openlca-ipc-smoke.ts
 ```bash
 set -euo pipefail
 
-image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.2.1"
+image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.3.0"
 image_uri="339712838008.dkr.ecr.us-east-1.amazonaws.com/tiangong-lca-mcp"
 
 docker build --no-cache --provenance=false --platform linux/arm64 -t "${image_uri}:${image_tag}" .

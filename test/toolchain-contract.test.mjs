@@ -8,7 +8,7 @@ const readText = (path) => readFileSync(new URL(path, repoRoot), 'utf8');
 const pathExists = (path) => existsSync(fileURLToPath(new URL(path, repoRoot)));
 const packageJson = JSON.parse(readText('package.json'));
 const expectedPnpmVersion = '11.24.0';
-const expectedPackageVersion = '0.2.1';
+const expectedPackageVersion = '0.3.0';
 
 describe('pnpm and TypeScript 7 toolchain contract', () => {
   it('pins the workspace runtime and package manager', () => {
@@ -130,19 +130,19 @@ describe('pnpm and TypeScript 7 toolchain contract', () => {
     assert.ok(addIndex > versionIndex);
   });
 
-  it('binds the 0.2.1 release across package, Docker, and active docs', () => {
+  it('binds the 0.3.0 release across package, Docker, and active docs', () => {
     assert.equal(packageJson.version, expectedPackageVersion);
     const surfaces = ['Dockerfile', 'README.md', 'README_CN.md', 'DEV_EN.md', 'DEV_CN.md'];
     for (const surface of surfaces) {
       const text = readText(surface);
-      assert.match(text, /0\.2\.1/u, surface);
+      assert.match(text, /0\.3\.0/u, surface);
       assert.doesNotMatch(
         text,
-        /(?:mcp-server|tiangong-lca-mcp):(?!(?:0\.2\.1)\b)\d+\.\d+\.\d+/u,
+        /(?:mcp-server|tiangong-lca-mcp):(?!(?:0\.3\.0)\b)\d+\.\d+\.\d+/u,
         surface,
       );
     }
-    assert.match(readText('Dockerfile'), /pnpm add --global @tiangong-lca\/mcp-server@0\.2\.1/u);
+    assert.match(readText('Dockerfile'), /pnpm add --global @tiangong-lca\/mcp-server@0\.3\.0/u);
     for (const maintainerDoc of ['DEV_EN.md', 'DEV_CN.md']) {
       const text = readText(maintainerDoc);
       const scanGateIndex = text.indexOf('if [ "${scan_gate}" != "${expected_scan_gate}" ]; then');
@@ -154,7 +154,7 @@ describe('pnpm and TypeScript 7 toolchain contract', () => {
       const waitScanIndex = text.indexOf('aws ecr wait image-scan-complete');
       const scanNotFoundIndex = text.indexOf('*ScanNotFoundException*)');
       const probeFailureIndex = text.indexOf('ECR scan probe failed: %s');
-      assert.match(text, /image_tag="direct-oauth-\$\(git rev-parse --short=12 HEAD\)-v0\.2\.1"/u);
+      assert.match(text, /image_tag="direct-oauth-\$\(git rev-parse --short=12 HEAD\)-v0\.3\.0"/u);
       assert.match(text, /docker build --no-cache --provenance=false --platform linux\/arm64/u);
       assert.match(text, /imageManifestMediaType/u);
       assert.match(text, /aws ecr start-image-scan/u);

@@ -21,8 +21,8 @@ checkPaths:
   - src/index_server_local.ts
   - src/http_app.ts
   - src/http_app_local.ts
-lastReviewedAt: 2026-11-04
-lastReviewedCommit: e141b4108eb864e99e185c81f6fb32b1278ba1c8
+lastReviewedAt: 2026-11-20
+lastReviewedCommit: 4fb4cf249514d4f70acb0a088bf58e415677619a
 lastReviewedNote: 'MCP #104: reviewed explicit actor-authenticated V2-V5 Study consumer, exact Edge artifacts, bounded downloads, source refusal and sticky same-key mutation recovery. Canonical source/packed/clean gates, independent review and installed runtime qualification are recorded separately; no publication or P5 enablement.'
 related:
   - AGENTS.md
@@ -73,18 +73,18 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 
 ### Using Docker
 
-The checked-in Dockerfile installs published `@tiangong-lca/mcp-server@0.2.1`, rather than building this checkout. Source changes apply to a checkout build; existing npm packages and images need a separately reviewed release to receive them.
+The checked-in Dockerfile installs published `@tiangong-lca/mcp-server@0.3.0`, rather than building this checkout. Source changes apply to a checkout build; existing npm packages and images need a separately reviewed release to receive them.
 
 ```bash
 # Build the MCP server image locally using Dockerfile
-docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
+docker build -t linancn/tiangong-lca-mcp-server:0.3.0 .
 
 # Start MCP server using Docker
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.1
+    linancn/tiangong-lca-mcp-server:0.3.0
 ```
 
 ## Local Testing

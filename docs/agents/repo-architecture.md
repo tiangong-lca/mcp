@@ -33,8 +33,8 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-11-19
-lastReviewedCommit: 61251e5f4756735908fb54f657ea4a538927b283
+lastReviewedAt: 2026-11-20
+lastReviewedCommit: 4fb4cf249514d4f70acb0a088bf58e415677619a
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - ../../AGENTS.md
@@ -130,7 +130,7 @@ On Node Alpine, Corepack activation and pnpm global installation are separate bo
 
 The build upgrades Alpine packages before package-manager setup and records the installed OpenSSL version. The ECR qualification command disables provenance so the tag resolves to one scan-compatible ARM64 image manifest instead of an OCI index. The tag is commit-bearing and must be absent before push. Qualification reuses scan-on-push, starts only for `ScanNotFoundException`, preserves every other probe error, and exits before run unless the result is COMPLETE with exactly zero CRITICAL and HIGH findings. A vulnerable or unscannable image remains evidence only and is never an ECS task input.
 
-The MCP `0.2.1` package graph is single-track Node `24.19.0`, pnpm `11.24.0`, TypeScript `7.0.2`, TIDAS SDK `0.2.0`, Supabase JS `2.118.0`, MCP SDK `1.32.1`, and Zod `4.6.7`. Inspector `2.11.0`, React DOM `19.3.1`, and tsx `4.23.15` are development-only; The root React DOM pair supports Inspector's optional development peer graph without entering the production archive. The packed-consumer proof imports all three packaged entry modules from an arbitrary path, verifies that compiler, lint, test, and Inspector/React tooling is absent from the production install, and proves that canonical realpath comparison still treats the generated global shim target as the executable entrypoint.
+The MCP `0.3.0` package graph is single-track Node `24.19.0`, pnpm `11.24.0`, TypeScript `7.0.2`, TIDAS SDK `0.2.0`, Supabase JS `2.118.0`, MCP SDK `1.32.1`, and Zod `4.6.7`. Inspector `2.11.0`, React DOM `19.3.1`, and tsx `4.23.15` are development-only; The root React DOM pair supports Inspector's optional development peer graph without entering the production archive. The packed-consumer proof imports all three packaged entry modules from an arbitrary path, verifies that compiler, lint, test, and Inspector/React tooling is absent from the production install, and proves that canonical realpath comparison still treats the generated global shim target as the executable entrypoint.
 
 Inspector's published web assets contain their own prebundled React and React DOM `19.3.0`; those bytes are unchanged by this root peer update. Its TUI retains the matched React `19.2.8`, Ink `6.8.0`, and reconciler `0.33.0` branch. Qualify the root React DOM pair separately rather than treating the prebundled web client as execution proof for it.
 

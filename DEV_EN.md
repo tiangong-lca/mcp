@@ -22,8 +22,8 @@ checkPaths:
   - src/**
   - test/**
   - scripts/**
-lastReviewedAt: 2026-11-19
-lastReviewedCommit: 61251e5f4756735908fb54f657ea4a538927b283
+lastReviewedAt: 2026-11-20
+lastReviewedCommit: 4fb4cf249514d4f70acb0a088bf58e415677619a
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - AGENTS.md
@@ -54,18 +54,18 @@ pnpm dlx dotenv-cli -e .env -- tiangong-lca-mcp-stdio
 
 ### Using Docker
 
-The checked-in Dockerfile installs published `@tiangong-lca/mcp-server@0.2.1`, rather than building this checkout. Source changes apply to a checkout build; existing npm packages and images need a separately reviewed release to receive them.
+The checked-in Dockerfile installs published `@tiangong-lca/mcp-server@0.3.0`, rather than building this checkout. Source changes apply to a checkout build; existing npm packages and images need a separately reviewed release to receive them.
 
 ```bash
 # Build the MCP server image locally using Dockerfile
-docker build -t linancn/tiangong-lca-mcp-server:0.2.1 .
+docker build -t linancn/tiangong-lca-mcp-server:0.3.0 .
 
 # Start MCP server using Docker
 docker run -d \
     --name tiangong-lca-mcp-server \
     --publish 9278:9278 \
     --env-file .env \
-    linancn/tiangong-lca-mcp-server:0.2.1
+    linancn/tiangong-lca-mcp-server:0.3.0
 ```
 
 ## Development
@@ -140,7 +140,7 @@ This runs read-only lint/typecheck, offline behavior tests, packed-consumer vali
 
 ### Publishing
 
-Publishing is handled by the tracked direct-OAuth task after the change merges. The trusted-publishing workflow installs with pnpm's frozen lock, runs the canonical gate, and keeps the existing single-package tag format `v<package.version>`; release `0.2.1` maps to `v0.2.1`. Before building the ECS image, read back registry integrity and verify that the archive contains the OAuth runtime, Supabase JWT verifier, and HTTP app while every removed stateful-auth module is absent. The same gate must execute the globally installed HTTP bin and receive `/health`; import-only proof is insufficient.
+Publishing is handled by the tracked direct-OAuth task after the change merges. The trusted-publishing workflow installs with pnpm's frozen lock, runs the canonical gate, and keeps the existing single-package tag format `v<package.version>`; release `0.3.0` maps to `v0.3.0`. Before building the ECS image, read back registry integrity and verify that the archive contains the OAuth runtime, Supabase JWT verifier, and HTTP app while every removed stateful-auth module is absent. The same gate must execute the globally installed HTTP bin and receive `/health`; import-only proof is insufficient.
 
 ### scaffold
 
@@ -153,7 +153,7 @@ pnpm exec tsx scripts/openlca-ipc-smoke.ts
 ```bash
 set -euo pipefail
 
-image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.2.1"
+image_tag="direct-oauth-$(git rev-parse --short=12 HEAD)-v0.3.0"
 image_uri="339712838008.dkr.ecr.us-east-1.amazonaws.com/tiangong-lca-mcp"
 
 docker build --no-cache --provenance=false --platform linux/arm64 -t "${image_uri}:${image_tag}" .
