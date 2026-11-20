@@ -1,7 +1,7 @@
 version: 1
 layout: repo
-lastReviewedAt: "2026-11-19"
-lastReviewedCommit: "61251e5f4756735908fb54f657ea4a538927b283"
+lastReviewedAt: "2026-11-20"
+lastReviewedCommit: "4fb4cf249514d4f70acb0a088bf58e415677619a"
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 
 catalog:

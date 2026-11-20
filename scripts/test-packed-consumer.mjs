@@ -171,7 +171,7 @@ try {
   const packageRoot = join(temporaryRoot, 'node_modules', '@tiangong-lca', 'mcp-server');
   const packageJson = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'));
   assert.equal(packageJson.name, '@tiangong-lca/mcp-server');
-  assert.equal(packageJson.version, '0.2.1');
+  assert.equal(packageJson.version, '0.3.0');
   assert.equal(packageJson.dependencies['@tiangong-lca/tidas-sdk'], '0.2.0');
   assert.equal(packageJson.dependencies['@modelcontextprotocol/sdk'], '1.32.1');
   const productionTree = JSON.parse(
