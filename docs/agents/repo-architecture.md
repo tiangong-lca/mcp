@@ -33,8 +33,8 @@ checkPaths:
   - scripts/docpact
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
-lastReviewedAt: 2026-11-20
-lastReviewedCommit: 4fb4cf249514d4f70acb0a088bf58e415677619a
+lastReviewedAt: 2026-11-24
+lastReviewedCommit: 3417e137edb629153556512aa716f35aa3fb19ae
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - ../../AGENTS.md

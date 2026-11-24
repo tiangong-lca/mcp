@@ -2,10 +2,24 @@ name: quality-gate
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - package.json
+      - pnpm-lock.yaml
+      - src/**
+      - test/**
+      - scripts/**
+      - .github/workflows/quality-gate.yml
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: quality-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   quality-gate:
