@@ -44,7 +44,7 @@ checkPaths:
   - scripts/docpact-gate.sh
   - scripts/install-git-hooks.sh
 lastReviewedAt: 2026-11-27
-lastReviewedCommit: ae359d70f48341e5bd6652d7170b563d61ef650b
+lastReviewedCommit: e3ab66d17540139a15898c51c9a6903d2d9c5608
 lastReviewedNote: 'MCP #113. Reviewed the new type-aware linter pair, required native bindings and existing Node, pnpm, package and four-platform checks.'
 related:
   - .docpact/config.yaml
