@@ -22,8 +22,83 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  plan:
+    name: Plan quality-gate lane
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.classify.outputs.mode }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Classify quality-gate lane (fail-closed)
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HAS_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "pull_request" ] || [ "$HAS_FULL_LABEL" = "true" ]; then
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          docs_only="true"
+          needs_full="false"
+          file_count=0
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            file_count=$((file_count + 1))
+            case "$file" in
+              AGENTS.md|README*.md|DEV_*.md|docs/*|.docpact/*) ;;
+              *) docs_only="false" ;;
+            esac
+            case "$file" in
+              package.json|pnpm-lock.yaml|pnpm-workspace.yaml|.nvmrc|.gitattributes|Dockerfile|scripts/ci/*|.github/workflows/*|test/toolchain-contract.test.mjs)
+                needs_full="true"
+                ;;
+            esac
+          done < <(git diff --name-only "$BASE_SHA" HEAD)
+          if [ "$file_count" -gt 0 ] && [ "$docs_only" = "true" ]; then
+            echo "mode=docs-only" >> "$GITHUB_OUTPUT"
+          elif [ "$file_count" -gt 0 ] && [ "$needs_full" = "false" ]; then
+            echo "mode=pr-fast" >> "$GITHUB_OUTPUT"
+          else
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+          fi
+
+  quality-gate-linux:
+    name: quality-gate (ubuntu-latest / x64 fast PR)
+    needs: plan
+    if: needs.plan.outputs.mode == 'pr-fast'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up pnpm and Node.js
+        uses: pnpm/setup@731dfb6463bbd11c11fd0ee11fe00ed0e36d48a1 # v3.2.0
+        with:
+          runtime: node@24.19.0
+          install: false
+          cache: true
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run canonical pre-push gate
+        run: pnpm run prepush:gate
+
   quality-gate:
     name: quality-gate (${{ matrix.os }} / ${{ matrix.arch }})
+    needs: plan
+    if: needs.plan.outputs.mode == 'full'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
